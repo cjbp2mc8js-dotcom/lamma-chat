@@ -99,4 +99,78 @@ try{await runTransaction(db,async t=>{const rr=roomRef(u.uid),wr=walletRef(u.uid
 
 onAuthStateChanged(auth,user=>{setBusy(false);if(user){gate.classList.add('off');document.getElementById('authPass').value='';window.lammaUser=user;try{window.loadLammaAvatar();window.show('home')}catch(e){}}else{gate.classList.remove('off');msg.textContent='سجّل دخولك حتى تفتح الواجهة الملكية';window.lammaUser=null;try{window.loadLammaAvatar()}catch(e){}}},err=>{setBusy(false);msg.textContent='تعذر الاتصال بخدمة الحسابات، تحقق من الإنترنت.'});
 window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(e){alert('تعذّر تسجيل الخروج. تحقق من الاتصال وحاول مرة ثانية.')}};
-</script></body></html>
+</script>
+<style>
+.agora-voice{margin:14px 0;padding:13px;border:1px solid #d5aa68;border-radius:15px;background:#1d0b2d;color:#fff;line-height:1.7}
+.agora-voice input{width:100%;font-size:16px;border:1px solid #b58bc6;border-radius:9px;background:#12071c;color:#fff;padding:11px;margin:5px 0;direction:ltr;text-align:left}
+.agora-voice button{padding:10px;border-radius:10px;background:#7540a3;color:white;border:1px solid #e7c476;margin:5px}
+</style>
+<script>
+/* Agora RTC test integration. No App Certificate or token stored in the published file. */
+(()=>{
+ const APP_ID='d8e6d522c0fb4f4682669a92ff60b5eb';
+ let client=null,track=null,joined=false,joining=false,channel='',activeRoom=null;
+ const status=t=>{const e=document.getElementById('agoraStatus');if(e)e.textContent=t};
+ const loadSDK=()=>new Promise((resolve,reject)=>{
+  if(window.AgoraRTC)return resolve();
+  const script=document.createElement('script');script.src='https://download.agora.io/sdk/release/AgoraRTC_N-4.23.2.js';script.onload=()=>window.AgoraRTC?resolve():reject(Error('تعذر تحميل مكتبة Agora'));script.onerror=()=>reject(Error('تعذر تحميل Agora، تأكد من الإنترنت'));document.head.appendChild(script);
+ });
+ async function disconnect(){
+  if(track){try{await client?.unpublish(track)}catch(e){}track.stop();track.close();track=null}
+  if(client){try{await client.leave()}catch(e){}client.removeAllListeners();client=null}
+  joined=false;joining=false;status('⚪ غير متصل بالصوت');
+  const b=document.getElementById('agoraJoin');if(b)b.textContent='🔊 دخول الصوت المباشر';
+ }
+ window.lammaAgoraDisconnect=disconnect;
+ function controls(room){
+  const stage=document.querySelector('.council-stage');if(!stage)return;
+  const block=document.createElement('div');block.className='agora-voice';
+  block.innerHTML='<b>🔊 الصوت المباشر — تجربة Agora</b><p class="note">للتجربة فقط: افتح التطبيق بجهازين، واستخدم نفس اسم القناة ورمز Agora المؤقت. لا تحفظ الرمز في GitHub.</p><label>اسم القناة (للتجربة)</label><input id="agoraChannel" value="lamma-test" autocomplete="off"><label>رمز Agora المؤقت (Token)</label><input id="agoraToken" type="password" placeholder="الصق الرمز هنا مؤقتاً" autocomplete="off"><button id="agoraJoin" type="button">🔊 دخول الصوت المباشر</button><p id="agoraStatus" role="status">⚪ غير متصل بالصوت</p><small>الصوت يعمل فقط أثناء فتح التطبيق. للإطلاق العام يلزم خادم رموز آمن وربط مقاعد جميع المستخدمين.</small>';
+  stage.appendChild(block);
+  block.querySelector('#agoraJoin').addEventListener('click',async()=>{
+   if(joined){await disconnect();return}
+   if(joining)return;
+   const ch=block.querySelector('#agoraChannel').value.trim(),token=block.querySelector('#agoraToken').value.trim();
+   if(!ch||!token){status('⚠️ اكتب اسم القناة والصق الرمز المؤقت');return}
+   joining=true;status('⏳ جاري الاتصال...');
+   try{
+    await loadSDK();client=AgoraRTC.createClient({mode:'rtc',codec:'vp8'});
+    client.on('user-published',async(user,mediaType)=>{
+     try{await client.subscribe(user,mediaType);if(mediaType==='audio'){user.audioTrack.play();status('🔊 متصل — تسمع المستخدمين الموجودين بالقناة')}}catch(e){status('⚠️ تعذر استقبال الصوت: '+e.message)}
+    });
+    client.on('user-unpublished',()=>status('🔊 متصل — أحد المستخدمين كتم المايك'));
+    client.on('user-left',()=>status('🔊 متصل — أحد المستخدمين غادر'));
+    client.on('connection-state-change',(cur)=>{if(cur==='DISCONNECTED')status('⚠️ انقطع اتصال الصوت')});
+    await client.join(APP_ID,ch,token,null);joined=true;channel=ch;
+    block.querySelector('#agoraToken').value='';
+    block.querySelector('#agoraJoin').textContent='🚪 خروج من الصوت';
+    status('🔊 متصل بقناة '+ch+' — اختار مقعد وشغّل المايك حتى يسمعك الآخرون');
+   }catch(e){await disconnect();status('❌ فشل الاتصال: '+(e.message||e));}
+   finally{joining=false}
+  });
+ }
+ const oldEnter=window.enterRoom;
+ window.enterRoom=async function(uid){await disconnect();activeRoom=uid;await oldEnter(uid);controls(uid)};
+ const oldToggle=window.lammaToggleMic;
+ window.lammaToggleMic=async function(){
+  if(!joined){const e=document.getElementById('seatStatus');if(e)e.textContent='🔊 ادخل الصوت المباشر أولاً من أسفل المجلس';return}
+  if(!lammaSeat){const e=document.getElementById('seatStatus');if(e)e.textContent='🎙️ اختار مقعد أولاً';return}
+  const b=document.getElementById('micToggle');
+  try{
+   if(track){await client.unpublish(track);track.stop();track.close();track=null;lammaMicEnabled=false;if(b)b.textContent='🎙️ تشغيل المايك';status('🔇 المايك مكتوم — لا أحد يسمعك');return}
+   track=await AgoraRTC.createMicrophoneAudioTrack();await client.publish(track);lammaMicEnabled=true;
+   if(b)b.textContent='🔇 إطفاء المايك';status('🎙️ المايك منشور — الموجودون بنفس قناة Agora يگدرون يسمعونك');
+  }catch(e){if(track){track.stop();track.close();track=null}status('❌ تعذر تشغيل الصوت: '+(e.message||e))}
+ };
+ const oldChoose=window.lammaChooseSeat;
+ window.lammaChooseSeat=async function(n){if(track){try{await client?.unpublish(track)}catch(e){}track.stop();track.close();track=null;lammaMicEnabled=false}return oldChoose(n)};
+ const oldLeave=window.lammaLeaveSeat;
+ window.lammaLeaveSeat=async function(){if(track){try{await client?.unpublish(track)}catch(e){}track.stop();track.close();track=null}return oldLeave()};
+ const oldRender=window.renderRooms;
+ window.renderRooms=async function(...args){await disconnect();return oldRender(...args)};
+ const oldMy=window.openMyRoom;
+ window.openMyRoom=async function(...args){await disconnect();return oldMy(...args)};
+ window.addEventListener('pagehide',()=>{disconnect()});
+})();
+</script>
+</body></html>
