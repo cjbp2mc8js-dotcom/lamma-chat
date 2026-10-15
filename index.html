@@ -122,7 +122,7 @@ window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(
   const b=document.getElementById('agoraJoin');if(b)b.textContent='🔊 دخول الصوت المباشر';
  }
  window.lammaAgoraDisconnect=disconnect;
- function controls(room){
+ function controls(){
   const stage=document.querySelector('.council-stage');if(!stage)return;
   const block=document.createElement('div');block.className='agora-voice';
   block.innerHTML='<b>🔊 الصوت المباشر — تجربة Agora</b><p class="note">للتجربة فقط: افتح التطبيق بجهازين، واستخدم نفس اسم القناة ورمز Agora المؤقت. لا تحفظ الرمز في GitHub.</p><label>اسم القناة (للتجربة)</label><input id="agoraChannel" value="lamma-test" autocomplete="off"><label>رمز Agora المؤقت (Token)</label><input id="agoraToken" type="password" placeholder="الصق الرمز هنا مؤقتاً" autocomplete="off"><button id="agoraJoin" type="button">🔊 دخول الصوت المباشر</button><p id="agoraStatus" role="status">⚪ غير متصل بالصوت</p><small>الصوت يعمل فقط أثناء فتح التطبيق. للإطلاق العام يلزم خادم رموز آمن وربط مقاعد جميع المستخدمين.</small>';
@@ -149,8 +149,16 @@ window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(
    finally{joining=false}
   });
  }
- const oldEnter=window.enterRoom;
- window.enterRoom=async function(uid){await disconnect();activeRoom=uid;await oldEnter(uid);controls(uid)};
+ let lastStage=null;
+ const observeStage=()=>{
+  const stage=document.querySelector('.council-stage');
+  if(stage===lastStage)return;
+  if(lastStage)disconnect();
+  lastStage=stage;
+  if(stage)controls();
+ };
+ new MutationObserver(observeStage).observe(document.getElementById('other'),{childList:true,subtree:true});
+ observeStage();
  const oldToggle=window.lammaToggleMic;
  window.lammaToggleMic=async function(){
   if(!joined){const e=document.getElementById('seatStatus');if(e)e.textContent='🔊 ادخل الصوت المباشر أولاً من أسفل المجلس';return}
@@ -166,10 +174,6 @@ window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(
  window.lammaChooseSeat=async function(n){if(track){try{await client?.unpublish(track)}catch(e){}track.stop();track.close();track=null;lammaMicEnabled=false}return oldChoose(n)};
  const oldLeave=window.lammaLeaveSeat;
  window.lammaLeaveSeat=async function(){if(track){try{await client?.unpublish(track)}catch(e){}track.stop();track.close();track=null}return oldLeave()};
- const oldRender=window.renderRooms;
- window.renderRooms=async function(...args){await disconnect();return oldRender(...args)};
- const oldMy=window.openMyRoom;
- window.openMyRoom=async function(...args){await disconnect();return oldMy(...args)};
  window.addEventListener('pagehide',()=>{disconnect()});
 })();
 </script>
