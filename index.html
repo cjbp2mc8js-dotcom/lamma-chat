@@ -93,6 +93,7 @@ window.saveCouncilPhoto=input=>{const file=input.files?.[0],uid=auth.currentUser
 window.enterRoom=async uid=>{await window.lammaLeaveSeat();try{const snap=await getDoc(roomRef(uid));if(!snap.exists())return window.renderRooms();const r=snap.data();if(Number(r.lockedUntil||0)>Date.now()&&uid!==auth.currentUser?.uid){alert('المجلس مغلق مؤقتاً');return;}
  const seats=Array.from({length:10},(_,i)=>'<button type="button" class="royal-seat" data-seat="'+(i+1)+'" onclick="lammaChooseSeat('+(i+1)+')"><div class="seat-circle">🎙️</div><small>مقعد '+(i+1)+'</small></button>').join('');
  document.getElementById('roomsArea').innerHTML='<button class="royal-back" onclick="renderRooms()">↩ المجالس الملكية</button><div class="council-stage"><div class="stage-top">👑 '+roomEscape(r.name)+'</div><div class="stage-owner">♛<small>المجلس الملكي</small></div><div class="seat-grid">'+seats+'</div><div class="stage-chat"><p>✨ أهلاً وسهلاً في المجلس الملكي</p><p id="seatStatus">🎙️ اضغط على مقعد حتى تصعد للمايك</p><p>💬 الدردشة المباشرة تحتاج ربطاً بقاعدة بيانات</p></div><div class="stage-actions"><button id="micToggle" onclick="lammaToggleMic()">🎙️ تشغيل المايك</button><button onclick="alert(\'الهدايا الحقيقية تحتاج نظام رصيد آمن\')">🎁 الهدايا</button>'+(uid===auth.currentUser?.uid?'<button onclick="openMyRoom()">⚙️ الإدارة</button>':'')+'</div></div>';
+ window.lammaAgoraMount?.();
  }catch(e){alert('تعذر دخول المجلس: '+(e.code||e.message));}};
 window.buyRoomLock=async hours=>{const u=auth.currentUser,l=LOCKS.find(x=>x.hours===hours);if(!u||!l)return;if(!confirm('تأكيد قفل مجلسك لمدة '+hours+' ساعة مقابل '+l.cost+' جوهرة؟'))return;
 try{await runTransaction(db,async t=>{const rr=roomRef(u.uid),wr=walletRef(u.uid);const [room,wallet]=await Promise.all([t.get(rr),t.get(wr)]);if(!room.exists())throw Error('المجلس غير موجود');if(Number(room.data().lockedUntil||0)>Date.now())throw Error('انتظر انتهاء القفل الحالي');const balance=Number(wallet.exists()?wallet.data().diamonds||0:0);if(!Number.isSafeInteger(balance)||balance<l.cost)throw Error('رصيد الجواهر غير كافي');t.update(wr,{diamonds:balance-l.cost});t.update(rr,{lockedUntil:Date.now()+hours*3600000});});alert('تم قفل المجلس بنجاح');await window.openMyRoom();}catch(e){alert('لم تُخصم الجواهر: '+(e.message||e.code));}};
@@ -123,9 +124,9 @@ window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(
  }
  window.lammaAgoraDisconnect=disconnect;
  function controls(){
-  const stage=document.querySelector('.council-stage');if(!stage)return;
+  const stage=document.querySelector('.council-stage');if(!stage||stage.querySelector('.agora-voice'))return;
   const block=document.createElement('div');block.className='agora-voice';
-  block.innerHTML='<b>🔊 الصوت المباشر — تجربة Agora</b><p class="note">للتجربة فقط: افتح التطبيق بجهازين، واستخدم نفس اسم القناة ورمز Agora المؤقت. لا تحفظ الرمز في GitHub.</p><label>اسم القناة (للتجربة)</label><input id="agoraChannel" value="lamma-test" autocomplete="off"><label>رمز Agora المؤقت (Token)</label><input id="agoraToken" type="password" placeholder="الصق الرمز هنا مؤقتاً" autocomplete="off"><button id="agoraJoin" type="button">🔊 دخول الصوت المباشر</button><p id="agoraStatus" role="status">⚪ غير متصل بالصوت</p><small>الصوت يعمل فقط أثناء فتح التطبيق. للإطلاق العام يلزم خادم رموز آمن وربط مقاعد جميع المستخدمين.</small>';
+  block.innerHTML='<b>🔊 الصوت المباشر — تجربة Agora</b><p class="note">للتجربة فقط: افتح التطبيق بجهازين، واستخدم نفس اسم القناة ورمز Agora المؤقت. لا تحفظ الرمز في GitHub.</p><label>اسم القناة (للتجربة)</label><input id="agoraChannel" value="lamma-test" autocomplete="off"><label>رمز Agora المؤقت (Token)</label><input id="agoraToken" type="password" placeholder="الصق الرمز هنا مؤقتاً" autocomplete="off"><button id="agoraJoin" type="button">🔊 دخول الصوت المباشر</button><p id="agoraStatus" role="status">⚪ غير متصل بالصوت</p><small>الصوت يعمل فقط أثناء فتح التطبيق. رمز التجربة مؤقت ومربوط بالقناة. للإطلاق العام يلزم خادم رموز آمن وربط مقاعد جميع المستخدمين.</small>';
   stage.appendChild(block);
   block.querySelector('#agoraJoin').addEventListener('click',async()=>{
    if(joined){await disconnect();return}
@@ -149,6 +150,7 @@ window.lammaLogout=async()=>{try{await signOut(auth);window.show('home');}catch(
    finally{joining=false}
   });
  }
+ window.lammaAgoraMount=controls;
  let lastStage=null;
  const observeStage=()=>{
   const stage=document.querySelector('.council-stage');
