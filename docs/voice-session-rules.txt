@@ -1,0 +1,8 @@
+// Merge inside match /databases/{database}/documents in EXISTING rules.
+// Do not replace existing rules with this snippet.
+match /voiceSessions/{sessionId} {
+  allow read, write: if false;
+}
+// Remove any broader wildcard rule that grants client access here.
+// Admin SDK in voiceToken manages these records.
+// Optional: configure Firestore TTL cleanup on purgeAt.
