@@ -1,5 +1,5 @@
-functions/node_modules/
-functions/.env*
-functions/.secret.local
-firebase-debug.log*
-.firebase/
+cloudflare/node_modules/
+cloudflare/dist/
+cloudflare/.wrangler/
+cloudflare/.dev.vars*
+cloudflare/.env*
