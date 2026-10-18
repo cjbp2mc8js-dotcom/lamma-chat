@@ -3,15 +3,21 @@
   "name": "lamma-chat-voice",
   "main": "src/index.js",
   "compatibility_date": "2026-10-18",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "keep_vars": true,
   "vars": {
     "FIREBASE_PROJECT_ID": "lamma-chat-c7b3a",
     "AGORA_APP_ID": "d8e6d522c0fb4f4682669a92ff60b5eb",
     "ALLOWED_ORIGINS": "https://cjbp2mc8js-dotcom.github.io"
-  }
-  // Before production: create D1, run schema.sql, then add its binding:
-  // ,"d1_databases": [{"binding":"DB","database_name":"lamma-voice-sessions","database_id":"COPY_REAL_D1_ID_HERE"}]
-  // Keep AGORA_APP_CERTIFICATE in encrypted Cloudflare Secrets, never here.
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lamma-voice-sessions",
+      "database_id": "b0e0ff61-d5c7-4bb9-9ff1-b74812bd45e7"
+    }
+  ]
 }
