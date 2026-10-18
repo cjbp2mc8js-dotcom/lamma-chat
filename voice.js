@@ -11,7 +11,7 @@ class RoyalVoice {
  c.on('token-privilege-did-expire',()=>{if(epoch===this.epoch){this.ui({message:'انتهى اتصال الصوت. اضغط إعادة الاتصال.'});this.leave();}});
  c.on('connection-state-change',(state)=>{if(epoch!==this.epoch)return;if(state==='RECONNECTING')this.ui({message:'جاري استعادة اتصال الصوت...'});if(state==='CONNECTED')this.ui({message:'متصل بالصوت — اضغط صعود للمايك حتى تحچي.'});if(state==='DISCONNECTED'){this.ui({message:'انقطع الصوت. اضغط إعادة الاتصال.'});this.leave();}});
  await c.join(data.appId,data.channel,data.token,data.uid);if(epoch!==this.epoch){await this.cleanup();return;}
- this.timer=setInterval(()=>this.renew(epoch),300000);this.ui({connected:true,speaking:false,message:'تسمع المجلس — اضغط صعود للمايك حتى تحچي.'});users();
+ this.timer=setInterval(()=>this.renew(epoch),300000);this.ui({connected:true,speaking:false,rtcUid:data.uid,message:'تسمع المجلس — اضغط صعود للمايك حتى تحچي.'});users();
  }catch(e){await this.cleanup();if(epoch===this.epoch)this.ui({message:e.message||'تعذر الاتصال بالصوت.'});}});}
  renew(epoch){return this.serial(async()=>{if(epoch!==this.epoch||!this.client||!this.session)return;try{const data=await this.token('renew',this.session);if(epoch===this.epoch)await this.client.renewToken(data.token);}catch{if(epoch===this.epoch){++this.epoch;await this.cleanup();this.ui({message:'تعذر تجديد اتصال الصوت. اضغط إعادة الاتصال.'});}}});}
  rise(){const epoch=this.epoch;return this.serial(async()=>{if(!this.client||!this.session){this.ui({message:'انتظر اتصال الصوت أو اضغط إعادة الاتصال.'});return;}if(this.track)return;
