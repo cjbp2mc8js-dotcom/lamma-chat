@@ -1,4 +1,2 @@
-// Set the deployed Cloudflare Worker HTTPS URL here after setup.
-// Example format: https://lamma-royal-voice.YOUR-SUBDOMAIN.workers.dev/voice-token
-// This is a public endpoint, never an Agora certificate or temporary token.
-window.LAMMA_VOICE_ENDPOINT = '';
+// Public voice authorization endpoint. Credentials remain in Cloudflare Secrets.
+window.LAMMA_VOICE_ENDPOINT = 'https://lamma-chat-voice.495ts5y9yc.workers.dev/voice-token';
