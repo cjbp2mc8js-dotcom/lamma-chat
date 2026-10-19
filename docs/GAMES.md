@@ -7,7 +7,7 @@ The eight primary games and eight council mini-games now open real game sessions
 - XO: legal moves, three-in-a-row, draws; minimax practice opponent.
 - Chess: chess.js 1.4.0 (MIT, vendored locally) validates checks, checkmate, castling, en passant, promotion and repetition. A shallow material/position computer opponent runs in a dedicated worker.
 - Domino: two-player double-six draw dominoes, blocked-hand point comparison.
-- Ludo: two players, four marbles each, six to enter, three-six penalty, safe squares, captures, exact home entry. The lightweight circular board uses a shared final goal after each private home lane.
+- Ludo: two players, four marbles each, six to enter, three-six penalty, safe squares, captures, exact home entry. The classic 15×15 cross board has four colored bases, two active opposing players (red/yellow), and a shared final goal after each private home lane.
 - Jackaroo: two teams, each with one human and one explicitly labeled computer teammate. Ace/King entry, Ace 1/11, backwards four, five on eligible marbles, split seven, Jack exchange, ten movement/burn, protected starts and teammate assistance. Four marbles share the final goal of each color's home lane. This is a documented lightweight variant, not a claim to every tournament/house rule.
 - Pool: deterministic two-dimensional 8-ball variant, group assignment, fouls, cue ball placement, early-eight loss and legal-eight win.
 - Carrom: two colors, nine pieces each, queen cover, striker fouls and single-board wins. Simplified digital board rules are shown in-app.
