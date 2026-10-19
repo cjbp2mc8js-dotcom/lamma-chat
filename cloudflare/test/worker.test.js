@@ -40,3 +40,21 @@ test('fresh admission hides earlier messages only for the returning member; rene
  f.setTime(15000);await f.request('join');assert.equal((await f.request('list',{chat:true})).data.messages.length,1);
  f.db.sql.close();
 });
+
+test('account IDs are authenticated, stable across devices, unique and independent of Agora or room leases',async()=>{
+ const f=fixture();delete f.config.AGORA_APP_CERTIFICATE;
+ const call=(token='test',body={})=>f.handle(new Request('https://voice.test/account-id',{method:'POST',headers:{Origin:'https://site.test',Authorization:'Bearer '+token},body:JSON.stringify(body)}),f.config);
+ assert.equal((await call('invalid')).status,401);
+ const responses=await Promise.all(Array.from({length:12},()=>call('test',{userId:'victim',id:1234567}).then(r=>r.json())));
+ const id=responses[0].id;assert.match(id,/^\d{7,8}$/);assert(responses.every(r=>r.id===id));
+ f.setUid('other');const other=await (await call()).json();assert.notEqual(other.id,id);
+ f.setUid('visitor');assert.equal((await (await call()).json()).id,id);
+ assert.equal(f.calls.room,0);assert.equal(f.db.sql.prepare('SELECT count(*) n FROM account_ids').get().n,2);f.db.sql.close();
+});
+test('numeric ID collisions retry without overwriting another account',async()=>{
+ const {accountId}=await import('../src/account-id.js');const db=dbFixture();
+ assert.equal(await accountId(db,'one',()=>1234567),'1234567');
+ let calls=0;assert.equal(await accountId(db,'two',()=>++calls<3?1234567:99999999),'99999999');
+ assert.equal(await accountId(db,'one',()=>{throw Error('must not generate');}),'1234567');
+ db.sql.close();
+});
