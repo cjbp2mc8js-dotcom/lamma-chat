@@ -22,6 +22,6 @@ export async function councilChat({db,input,uid,session,now,ctx}){
    ctx.waitUntil(db.prepare('DELETE FROM council_messages WHERE room_id = ? AND (created_at < ? OR id NOT IN (SELECT id FROM council_messages WHERE room_id = ? ORDER BY created_at DESC, id DESC LIMIT 200))').bind(input.roomId,now-7*86400000,input.roomId).run().catch(()=>{}));
   }
  }
- const rows=await db.prepare('SELECT id, user_id AS userId, name, text, created_at AS createdAt FROM council_messages WHERE room_id = ? AND created_at >= ? ORDER BY created_at DESC, id DESC LIMIT 60').bind(input.roomId,now-7*86400000).all();
+ const rows=await db.prepare('SELECT id, user_id AS userId, name, text, created_at AS createdAt FROM council_messages WHERE room_id = ? AND created_at >= ? ORDER BY created_at DESC, id DESC LIMIT 60').bind(input.roomId,Math.max(now-7*86400000,Number.isSafeInteger(session.joinedAt)?session.joinedAt:0)).all();
  return {ok:true,messages:rows.results.reverse()};
 }

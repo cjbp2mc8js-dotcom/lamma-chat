@@ -124,7 +124,7 @@ class CouncilChat {
   this.active=false;this.epoch=0;this.controllers=new Set();this.retry=null;this.sending=false;this.revision=0;this.admitted=false;this.admission=null;
   this.visible=()=>{clearTimeout(this.timer);if(document.visibilityState==='visible'){if(!this.externalSession&&!this.admitted)this.admit();else this.refresh();}};
  }
- start(){if(this.active)return;this.active=true;this.epoch++;document.addEventListener('visibilitychange',this.visible);if(this.externalSession)this.refresh();else this.admit();}
+ start(){if(this.active)return;this.active=true;this.epoch++;this.retry=null;this.ui({messages:[],sendStatus:'',ready:false});document.addEventListener('visibilitychange',this.visible);if(this.externalSession)this.refresh();else this.admit();}
  stop(){
   const lease=this.admission;this.active=false;this.epoch++;this.admitted=false;this.admission=null;this.sending=false;
   for(const timer of [this.timer,this.admitTimer,this.renewTimer])clearTimeout(timer);
