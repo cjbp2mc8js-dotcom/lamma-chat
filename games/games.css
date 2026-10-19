@@ -10,3 +10,23 @@
 @keyframes ludo-die-ready{50%{box-shadow:0 0 0 3px #fff1a680,0 0 12px #92d4ff;filter:brightness(1.12)}}@keyframes ludo-die-roll{25%{transform:rotate(28deg) scale(.85)}75%{transform:rotate(-28deg) scale(1.08)}}@keyframes ludo-piece-breathe{to{filter:drop-shadow(0 0 6px #fff4a1) brightness(1.25)}}
 @media(min-width:480px){.ludo-player-card{grid-template-columns:50px minmax(0,1fr) 46px;padding:9px 7px}.ludo-player-avatar{width:48px;height:48px}.ludo-player-card .ludo-dice{width:42px;height:42px}.ludo-player-info b{font-size:12px}.ludo-match{padding-top:20px}}
 @media(prefers-reduced-motion:reduce){.ludo-player-card .ludo-dice.ready,.ludo-player-card .ludo-dice.rolling,.ludo-pawn.playable{animation:none}}
+
+/* Mobile table: the board and all four seats remain together in the viewport. */
+.lamma-game[data-kind=ludo]{font-family:system-ui,-apple-system,sans-serif}
+.ludo-match{max-width:min(100%,calc(100dvh - 305px));margin-inline:auto;padding-top:6px}
+.ludo-table-label{margin:0 3px 14px}.ludo-table-label>span{font-size:16px}
+.ludo-top-players{min-height:58px;margin:0 2px 13px}.ludo-bottom-players{min-height:58px;margin:14px 2px 0}
+.ludo-player-card{box-sizing:border-box;min-height:58px;grid-template-columns:38px minmax(0,1fr) 40px;gap:4px;padding:6px;border-radius:14px;transition:border-color .2s,box-shadow .2s}
+.ludo-player-avatar{box-sizing:border-box;width:36px;height:36px;font-size:24px}
+.ludo-player-card.active-turn:after{content:'';position:absolute;bottom:-8px;left:18px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--seat)}
+.ludo-bottom-players .ludo-player-card.active-turn:after{top:-8px;bottom:auto;border-top:0;border-bottom:7px solid var(--seat)}
+.ludo-player-card .ludo-dice{box-sizing:border-box;width:40px;height:40px;touch-action:manipulation}.ludo-player-card .ludo-dice:disabled{opacity:.78}
+.ludo-player-card .ludo-dice.ready:after{content:'◀';position:absolute;right:-14px;top:10px;color:#fff2a1;font-size:15px;filter:drop-shadow(0 1px 3px #000)}
+.ludo-board-shell{padding:6px;border-radius:12px;background:linear-gradient(145deg,#f8edbe,#90642a 36%,#f3df94 65%,#a98244);border:2px solid #ffedbd;box-shadow:0 1px 0 #fff8dc inset,0 9px 25px #0008,0 0 0 2px #72552c}
+.ludo-square-board{touch-action:manipulation}.ludo-square-board>svg{border-radius:5px}
+.ludo-pawn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}.ludo-pawn.playable:after{content:'';position:absolute;inset:-20% -25%;border-radius:50%}
+.ludo-pawn.playable:active{filter:brightness(1.35)}.ludo-instruction{margin:10px 0 7px;padding:7px 9px;box-sizing:border-box;line-height:1.6;min-height:34px;font-size:11px}
+.ludo-tools{margin:6px 0 8px;gap:6px}.ludo-tools button{padding:7px 9px;min-height:32px}
+.lamma-game[data-kind=ludo] .game-body{padding-bottom:4px}.lamma-game[data-kind=ludo] .game-restart{margin:4px auto 7px;padding:6px 14px;min-height:30px}
+@media(max-width:359px){.ludo-player-card{grid-template-columns:30px minmax(0,1fr) 34px;padding:5px;gap:3px}.ludo-player-avatar{width:29px;height:29px;font-size:20px}.ludo-player-card .ludo-dice{width:34px;height:34px}.ludo-player-info b{font-size:9px}.ludo-player-info small{font-size:8px}}
+@media(max-height:640px){.ludo-match{max-width:100%}.ludo-table-label{margin-bottom:10px}}
