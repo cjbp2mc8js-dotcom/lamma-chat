@@ -1,4 +1,5 @@
 import {randomUUID,randomInt} from 'node:crypto';
+import {initLudo,ludoMember,ludoPayload,ludoRequest} from './ludo.js';
 import {createGame,applyMove,botMove,publicState,catalog} from '../../games/engine.mjs';
 const ready=new WeakMap();const fail=(status,message)=>{throw Object.assign(Error(message),{status});};
 async function init(db){if(!ready.has(db))ready.set(db,(async()=>{await db.prepare("CREATE TABLE IF NOT EXISTS game_matches (id TEXT PRIMARY KEY,kind TEXT NOT NULL,status TEXT NOT NULL,p0 TEXT NOT NULL,p1 TEXT,n0 TEXT NOT NULL,n1 TEXT,state TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 0,created INTEGER NOT NULL,updated INTEGER NOT NULL,seen0 INTEGER NOT NULL,seen1 INTEGER NOT NULL DEFAULT 0,req0 TEXT,req1 TEXT)").run();await db.prepare('CREATE INDEX IF NOT EXISTS game_match_queue ON game_matches(kind,status,created)').run();await db.prepare('CREATE TABLE IF NOT EXISTS game_players (uid TEXT PRIMARY KEY,match_id TEXT NOT NULL,updated INTEGER NOT NULL)').run();})().catch(e=>{ready.delete(db);throw e;}));await ready.get(db);}
@@ -9,12 +10,15 @@ async function member(db,uid){const own=await db.prepare('SELECT match_id,update
 function withBots(state){let s=state;for(let i=0;i<12&&!s.over&&s.kind==='jackaroo'&&s.turn>=2;i++){const a=botMove(s);if(!a)break;s=applyMove(s,a);}return s;}
 export async function gameRequest({db,uid,input,now=Date.now(),ctx={waitUntil(){}}}){
  await init(db);if(!input||typeof input!=='object'||Array.isArray(input))fail(400,'طلب غير صالح');const action=input.action;
- if(action==='join'){ctx.waitUntil(db.batch([db.prepare("DELETE FROM game_matches WHERE id IN (SELECT id FROM game_matches WHERE (status='finished' AND updated<?) OR (status='waiting' AND updated<?) LIMIT 50)").bind(now-86400000,now-7200000),db.prepare('DELETE FROM game_players WHERE updated<? AND match_id NOT IN (SELECT id FROM game_matches)').bind(now-30000)]).catch(()=>{}));
+ await initLudo(db);
+ if(action==='join'){const old=await member(db,uid);if(old&&old.status!=='finished'&&now-old.updated<7200000)return payload(old,uid);const current=await ludoMember(db,uid);if(current&&current.status!=='finished'){if(now-current.updated>=7200000)await db.prepare("UPDATE ludo_rooms SET status='finished',state=json_set(state,'$.over',json('true'),'$.winner',NULL,'$.reason','انتهت صلاحية المباراة') WHERE id=?").bind(current.id).run();else if(!JSON.parse(current.state).departed?.includes(JSON.parse(current.roster).findIndex(p=>p.uid===uid)))return ludoPayload(current,uid);else await db.prepare('DELETE FROM game_players WHERE uid=? AND match_id=?').bind(uid,current.id).run();}}
+ if(action==='join'&&input.kind==='ludo'||typeof input.id==='string'&&input.id.startsWith('ludo-'))return ludoRequest({db,uid,input,now,ctx});
+ if(action==='join'){ctx.waitUntil(db.batch([db.prepare("DELETE FROM game_matches WHERE id IN (SELECT id FROM game_matches WHERE (status='finished' AND updated<?) OR (status='waiting' AND updated<?) LIMIT 50)").bind(now-86400000,now-7200000),db.prepare('DELETE FROM game_players WHERE updated<? AND match_id NOT IN (SELECT id FROM game_matches) AND match_id NOT IN (SELECT id FROM ludo_rooms)').bind(now-30000)]).catch(()=>{}));
   if(!catalog.some(g=>g.id===input.kind))fail(400,'اللعبة غير موجودة');
   const existing=await member(db,uid);
   if(existing&&existing.status!=='finished'&&now-existing.updated<7200000)return payload(existing,uid);if(existing&&existing.status!=='finished')await db.prepare("UPDATE game_matches SET status='finished' WHERE id=?").bind(existing.id).run();
   // Recover incomplete reservations after crashes; never displace a live reservation.
-  await db.prepare('DELETE FROM game_players WHERE uid=? AND (updated<? OR match_id IN (SELECT id FROM game_matches WHERE status=\'finished\'))').bind(uid,now-30000).run();
+  await db.prepare('DELETE FROM game_players WHERE uid=? AND (updated<? OR match_id IN (SELECT id FROM game_matches WHERE status=\'finished\') OR match_id IN (SELECT id FROM ludo_rooms WHERE status=\'finished\'))').bind(uid,now-30000).run();
   const id=randomUUID(),name=cleanName(input.name),reservation=await db.prepare('INSERT INTO game_players(uid,match_id,updated) VALUES(?,?,?) ON CONFLICT(uid) DO NOTHING RETURNING uid').bind(uid,id,now).first();
   if(!reservation){const current=await member(db,uid);if(current)return payload(current,uid);fail(409,'جاري تجهيز مباراتك؛ حاول مجدداً');}
   try{

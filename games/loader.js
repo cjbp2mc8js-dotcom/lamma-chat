@@ -1,5 +1,5 @@
 (()=>{
- let loading;const clientURL=new URL('./client.mjs?v=2',document.currentScript.src).href;
+ let loading;const clientURL=new URL('./client.mjs?v=3',document.currentScript.src).href;
  const load=()=>loading||(loading=import(clientURL).catch(e=>{loading=null;throw e;}));
  window.renderLammaGames=()=>'<section id="gamesArea"><p role="status">جاري تجهيز الألعاب…</p></section>';
  window.mountLammaGames=async()=>{try{const m=await load(),el=document.getElementById('gamesArea');if(el)el.innerHTML=m.menuHTML();}catch{const el=document.getElementById('gamesArea');if(el)el.innerHTML='<p>تعذر تحميل الألعاب. تأكد من الإنترنت.</p><button class="btn" onclick="mountLammaGames()">إعادة المحاولة</button>';}};
