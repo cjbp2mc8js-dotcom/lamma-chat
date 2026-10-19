@@ -17,7 +17,7 @@ The eight primary games and eight council mini-games now open real game sessions
 - Horses: two-horse dice race to forty.
 - Dare: ten noncompetitive prompts, no paid rewards.
 
-Game scores never change wallet gold or diamonds. Profile level/royal membership is not modified.
+Online matches now use server-owned free virtual gold and account XP as described in docs/GOLD.md. Diamonds and royal membership remain separate. Computer practice does not award gold, XP or task progress.
 
 ## Transport and authority
 
@@ -49,3 +49,4 @@ Modules load only when a user opens games. Board geometry and pieces are SVG/CSS
 The in-app rule text is the authority for the documented lightweight variants.
 
 Ludo upgrade validation: 71 unit/regression tests, including legal four-color play through completion, capture/bonus/safe/blockade rules, exact home entry, transactional four-seat queues, request deduplication and departure handling. Real Miniflare tests exercise four RSA-authenticated accounts against D1 JSON matchmaking. Chromium checks 320/390/430 pixel layouts, native die/pawn interaction and synchronized four-account entry against the actual server handler/SQLite fixture; no production-user identities are used.
+
