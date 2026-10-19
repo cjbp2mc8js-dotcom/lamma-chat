@@ -1,7 +1,7 @@
 import {goldBarHTML,stakeHTML,goldNumber,paintGold,refreshGold,updateGold,openGoldTasks} from './gold.mjs?v=1';
 import {catalog,createGame,legalMoves,applyMove,botMove,publicState,pawnSquare,simulateShot,describeMove,help,isQuiz,ludoFinish} from './engine.mjs?v=3';
 import {dares} from './questions.mjs';
-import {ludoBoardHTML,diceSVG,ludoPosition,ludoMotion,ludoColorIndex,ludoColors,ludoPerspective,ludoSeats,ludoCupSVG} from './ludo-board.mjs?v=6';
+import {ludoBoardHTML,diceSVG,ludoPosition,ludoMotion,ludoColorIndex,ludoColors,ludoPerspective,ludoSeats,ludoCupSVG} from './ludo-board.mjs?v=7';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let active,opening=0;

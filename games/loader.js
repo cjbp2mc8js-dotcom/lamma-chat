@@ -1,5 +1,5 @@
 (()=>{
- let loading;const clientURL=new URL('./client.mjs?v=6',document.currentScript.src).href;
+ let loading;const clientURL=new URL('./client.mjs?v=7',document.currentScript.src).href;
  const goldURL=new URL('./gold.mjs?v=1',document.currentScript.src).href;
  window.openLammaTasks=()=>import(goldURL).then(m=>m.openGoldTasks());
  window.loadLammaGold=()=>import(goldURL).then(m=>{window.paintLammaGold=m.paintGold;return m.refreshGold();}).catch(()=>{});
