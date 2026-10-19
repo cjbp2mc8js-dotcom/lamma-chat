@@ -1,0 +1,64 @@
+/* Royal waterfront match scene. Static artwork; only a live turn animates. */
+.lamma-game[data-kind=ludo][data-live=true]{--scene-board:min(calc(100vw - 12px),530px,calc(100dvh - 294px));background-position:center;background-size:cover;overflow-x:hidden;overflow-y:auto;min-height:100dvh}
+.lamma-game[data-kind=ludo][data-live=true] .game-header{position:absolute;inset:0 0 auto;background:linear-gradient(#08172b99,transparent);border:0;z-index:5;padding:calc(env(safe-area-inset-top) + 12px) 12px 8px;gap:8px}
+.ludo-live-title{display:grid;gap:3px;text-align:center;text-shadow:0 2px 6px #000}.ludo-live-title b{font-size:15px;color:#fff1bd}.ludo-live-title small{font-size:9px;color:#daeafb}
+.lamma-game[data-kind=ludo][data-live=true] .game-header button{width:37px;height:37px;background:#23476a66;border:1px solid #c6e2f788;border-radius:12px;color:#e7f9ff;font-size:27px;line-height:1;box-shadow:inset 0 0 8px #c9f1ff33}
+.lamma-game[data-kind=ludo][data-live=true] .game-status{position:absolute;left:16%;right:16%;top:calc(env(safe-area-inset-top) + 66px);font-size:10px;line-height:1.5;min-height:0;padding:5px 9px;border-radius:20px;z-index:2;background:#07203a77;color:#fff1b5;pointer-events:none}
+.lamma-game[data-kind=ludo][data-live=true] .game-body{padding:0 0 4px;min-height:calc(100dvh - 24px);display:flex;flex-direction:column;justify-content:center}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-match{box-sizing:border-box;display:flex;flex-direction:column;max-width:100%;width:100%;padding:calc(env(safe-area-inset-top) + 102px) 0 5px;min-height:calc(100dvh - 30px);margin:0;position:relative;justify-content:center}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-row{flex:none;width:var(--scene-board);max-width:calc(100% - 12px);margin-inline:auto;z-index:3}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-top-players{min-height:72px;margin-top:0;margin-bottom:13px;align-items:flex-end}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-bottom-players{min-height:83px;margin-top:25px;margin-bottom:0;align-items:flex-start}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-board-shell{box-sizing:border-box;flex:none;width:var(--scene-board);max-width:calc(100% - 12px);margin:0 auto;padding:0;border:0;background:none;border-radius:0;box-shadow:0 7px 25px #001125a0;position:relative}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-square-board{width:100%;aspect-ratio:1;isolation:isolate}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-square-board>svg{border-radius:0;overflow:visible;box-shadow:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-square-board>svg.ludo-gem-frame{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:visible}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card{--seat:#fa614a;box-sizing:border-box;width:49%;max-width:240px;padding:0;border:0;background:none;box-shadow:none;border-radius:0;display:grid;grid-template-columns:54px 57px 28px;grid-template-rows:58px auto;column-gap:7px;row-gap:5px;position:relative;align-items:center;justify-content:start}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card.yellow{--seat:#ffe554}.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card.green{--seat:#5aee55}.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card.blue{--seat:#4ccfff}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card:after{display:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card.active-turn{background:none;border:0;box-shadow:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-avatar{grid-column:1;grid-row:1;width:52px;height:52px;box-sizing:border-box;border:3px solid #d7efff;border-radius:50%;background:radial-gradient(#82bfdd,#425897 70%);box-shadow:0 0 0 2px #7d5eba,0 0 0 4px #b7def899,0 4px 12px #0008;overflow:visible;font-size:30px;position:relative}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-avatar>svg,.lamma-game[data-kind=ludo][data-live=true] .ludo-player-avatar>img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.lamma-game[data-kind=ludo][data-live=true] .active-turn .ludo-player-avatar{border-color:#fbffd2;box-shadow:0 0 0 3px var(--seat),0 0 16px var(--seat),0 3px 7px #0008}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-avatar i{position:absolute;top:auto;bottom:-6px;left:5px;right:5px;font:700 8px system-ui;line-height:13px;background:linear-gradient(#2d4d68,#14243f);color:#fff1b0;border:1px solid #f5dc9e;border-radius:7px;text-shadow:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-info{grid-column:1/4;grid-row:2;text-align:left;padding-left:1px;max-width:95%;direction:rtl;text-shadow:0 1px 5px #001221}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-info b{font-size:10px;color:#fff8db;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:left;max-width:100%}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-info small{display:none}
+.ludo-dice-dock{position:relative;grid-column:2;grid-row:1;display:grid;place-items:center;width:57px;height:58px}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice{width:56px;height:59px;border:0;border-radius:9px;background:transparent;box-shadow:none;padding:0;transform:none;position:relative;filter:drop-shadow(0 2px 6px #2269ff88);touch-action:manipulation;animation:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice:disabled{opacity:.9}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice svg{display:block;width:100%;height:100%;overflow:visible}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice svg rect{fill:url(#dieGlass);stroke:#d4faff}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice.shows-cup{width:53px;height:68px;transform:rotate(-12deg)}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-dice.ready:after{display:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-dice.ready{filter:drop-shadow(0 0 6px #b2f6ff)}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-dice.rolling{animation:ludo-cup-shake .19s ease-in-out infinite}
+.ludo-roll-arrow{position:absolute;top:-32px;left:13px;color:#77ff37;font:900 31px system-ui;line-height:1;text-shadow:0 2px #16521c,1px 0 #fff,0 0 6px #cff7a2;animation:ludo-roll-arrow .85s ease-in-out infinite alternate;z-index:3;pointer-events:none}
+.ludo-last-die{position:absolute;left:3px;top:-12px;font:19px system-ui;color:#f0f8ff;text-shadow:0 2px 3px #00152b;line-height:1}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-turn-time,.ludo-seat-finish{grid-column:3;grid-row:1;position:static;box-sizing:border-box;display:grid;place-items:center;width:28px;height:28px;min-width:0;padding:0;border:2px solid #e4fcff;border-right-color:#68c4fc;border-bottom-color:#68c4fc;border-radius:50%;font:700 8px system-ui;color:#fff;background:linear-gradient(125deg,#7bd99c99,#1766ab99);box-shadow:0 2px 3px #0006;direction:rtl}
+.ludo-seat-finish{opacity:.7}.lamma-game[data-kind=ludo][data-live=true] .ludo-turn-time.urgent{color:#fff;background:#ad3e51;border-color:#ffbf7b}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-pawn{width:6%;height:8%;transform:translate(-50%,-65%);z-index:4}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-pawn.at-base{width:8%;height:10.2%}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-pawn.yellow.at-base{width:8.7%;height:10.5%}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-pawn small{display:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-pawn.finished{width:4.1%;height:5.4%}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-instruction{margin:9px auto 5px;width:max-content;max-width:85%;border:0;background:#0b25477d;color:#fff0bb;font:10px system-ui;line-height:1.5;min-height:0;padding:5px 12px;border-radius:15px;z-index:1;text-shadow:0 1px 3px #000}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-tools{justify-content:flex-start;gap:10px;direction:ltr;margin:10px auto 0;width:var(--scene-board);max-width:calc(100% - 20px);padding-left:5px}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-tools button{display:grid;place-items:center;padding:0;width:48px;height:31px;min-height:31px;border-radius:15px;border:1px solid #fff0af;background:linear-gradient(#ffe492,#e9b72e);color:#523a15;font:700 21px system-ui;box-shadow:0 2px 3px #13264777}
+.lamma-game[data-kind=ludo][data-live=true] .game-restart{display:none}
+.lamma-game[data-kind=ludo][data-live=true] .game-footer{padding:2px 5px calc(env(safe-area-inset-bottom) + 6px);font-size:8px;background:none;text-shadow:0 2px 4px #000;position:relative;color:#e5eff5}
+.lamma-game[data-kind=ludo][data-live=true] .game-end{position:relative;z-index:6;margin:0 12px 10px;background:#0d2744ed;border-color:#ffe6a0;padding:14px 10px}
+@keyframes ludo-cup-shake{0%,100%{transform:translate(-3px,-3px) rotate(-24deg) scale(1.08)}50%{transform:translate(5px,-11px) rotate(19deg) scale(1.15)}}
+@keyframes ludo-roll-arrow{to{transform:translateY(7px);filter:brightness(1.2)}}
+@media(max-width:359px){.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card{grid-template-columns:43px 48px 24px;column-gap:6px;grid-template-rows:52px auto}.lamma-game[data-kind=ludo][data-live=true] .ludo-player-avatar{width:43px;height:43px}.ludo-dice-dock{width:48px;height:52px}.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice{width:48px;height:51px}.lamma-game[data-kind=ludo][data-live=true] .ludo-player-card .ludo-dice.shows-cup{width:46px;height:58px}.lamma-game[data-kind=ludo][data-live=true] .ludo-turn-time,.ludo-seat-finish{width:24px;height:24px;font-size:7px}}
+@media(max-height:700px){.lamma-game[data-kind=ludo][data-live=true]{--scene-board:min(calc(100vw - 16px),calc(100dvh - 269px))}.lamma-game[data-kind=ludo][data-live=true] .ludo-match{padding-top:94px}.lamma-game[data-kind=ludo][data-live=true] .ludo-top-players{margin-bottom:9px;min-height:55px}.lamma-game[data-kind=ludo][data-live=true] .ludo-bottom-players{margin-top:21px;min-height:70px}.lamma-game[data-kind=ludo][data-live=true] .ludo-tools{margin-top:5px}}
+@media(prefers-reduced-motion:reduce){.ludo-roll-arrow,.lamma-game[data-kind=ludo][data-live=true] .ludo-dice.rolling{animation:none!important}}
+
+/* Safe-area spacing for the iPhone home-screen app. */
+.lamma-game[data-kind=ludo][data-live=true] .ludo-match{min-height:100dvh;padding-top:calc(env(safe-area-inset-top) + 76px);padding-bottom:calc(env(safe-area-inset-bottom) + 5px)}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-top-players{min-height:64px;margin-bottom:12px}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-bottom-players{min-height:66px;margin-top:21px}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-instruction,.lamma-game[data-kind=ludo][data-live=true] .game-footer{display:none}
+.lamma-game[data-kind=ludo][data-live=true] .ludo-tools{margin-top:6px}
+.lamma-game[data-kind=ludo][data-live=true] .game-body{min-height:100dvh}
+@media(max-height:700px){.lamma-game[data-kind=ludo][data-live=true]{--scene-board:min(calc(100vw - 16px),calc(100dvh - 310px))}}
