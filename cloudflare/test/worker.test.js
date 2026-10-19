@@ -26,3 +26,17 @@ const messageId='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 test('council chat persists messages for admitted members, retries do not duplicate, names and IDs cannot spoof sender',async()=>{const f=fixture();await f.request();const send=()=>f.request('send',{chat:true,body:{text:'مرحبا بالمجلس',name:'سجاد',messageId,userId:'owner'}});const a=await send();assert.equal(a.r.status,200,JSON.stringify(a.data));assert.equal(a.data.messages[0].userId,'visitor');assert.equal(a.data.messages[0].text,'مرحبا بالمجلس');assert.equal((await send()).data.messages.length,1);const b=await f.request('list',{chat:true});assert.equal(b.r.status,200);assert.equal(b.data.messages.length,1);f.db.sql.close();});
 test('council chat rejects missing, expired, cross-account and cross-room leases, and deleted rooms',async()=>{const f=fixture();assert.equal((await f.request('list',{chat:true})).r.status,403);await f.request();assert.equal((await f.request('list',{chat:true,body:{roomId:'other'}})).r.status,403);f.setUid('other');assert.equal((await f.request('list',{chat:true})).r.status,403);f.setUid('visitor');f.setTime(610000);assert.equal((await f.request('list',{chat:true})).r.status,403);f.setTime(10000);f.setRoom(null);assert.equal((await f.request('list',{chat:true})).r.status,404);f.db.sql.close();});
 test('chat enforces text limits and rate limits and isolates room history',async()=>{const f=fixture();await f.request();const send=(text,id=messageId)=>f.request('send',{chat:true,body:{text,name:'ضيف',messageId:id}});assert.equal((await send('')).r.status,400);assert.equal((await send('x'.repeat(501))).r.status,400);assert.equal((await send('hello')).r.status,200);assert.equal((await send('different')).r.status,409);assert.equal((await send('second','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')).r.status,429);f.setTime(11500);assert.equal((await send('second','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')).r.status,200);await f.request('join',{body:{roomId:'other',sessionId:'22345678-1234-1234-1234-123456789abc'}});assert.deepEqual((await f.request('list',{chat:true,body:{roomId:'other',sessionId:'22345678-1234-1234-1234-123456789abc'}})).data.messages,[]);f.setRoom({ownerId:'owner',isPublic:true,lockedUntil:900000});assert.equal((await f.request('list',{chat:true})).r.status,200);f.db.sql.close();});
+test('fresh admission hides earlier messages only for the returning member; renewal preserves the current visit',async()=>{
+ const f=fixture();await f.request();
+ await f.request('send',{chat:true,body:{text:'قبل الخروج',name:'أول',messageId}});
+ f.setUid('second');f.setTime(10000);await f.request();
+ assert.equal((await f.request('list',{chat:true})).data.messages.length,1);
+ f.setUid('visitor');await f.request('leave');f.setTime(12000);await f.request();
+ assert.deepEqual((await f.request('list',{chat:true})).data.messages,[]);
+ f.setUid('second');assert.equal((await f.request('list',{chat:true})).data.messages[0].text,'قبل الخروج');
+ f.setTime(13000);await f.request('send',{chat:true,body:{text:'رسالة جديدة',name:'ثاني',messageId:'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'}});
+ f.setUid('visitor');assert.deepEqual((await f.request('list',{chat:true})).data.messages.map(m=>m.text),['رسالة جديدة']);
+ f.setTime(14000);await f.request('renew');assert.equal((await f.request('list',{chat:true})).data.messages.length,1);
+ f.setTime(15000);await f.request('join');assert.equal((await f.request('list',{chat:true})).data.messages.length,1);
+ f.db.sql.close();
+});

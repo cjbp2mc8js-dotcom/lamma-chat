@@ -14,7 +14,7 @@ export function createHandler({verify=verifyIdentity,roomReader=readRoom,clock=D
   if(origin&&!allowed.includes(origin))return json({error:'الموقع غير مسموح'},403,{});
   const headers=origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Authorization, Content-Type','Access-Control-Max-Age':'600'}:{};
   const path=new URL(request.url).pathname;
-  if(path==='/health'&&request.method==='GET')return json({ok:true,service:'lamma-royal-voice',features:['council-chat']},200,headers);
+  if(path==='/health'&&request.method==='GET')return json({ok:true,service:'lamma-royal-voice',features:['council-chat','fresh-chat-entry']},200,headers);
   if(!['/','/voice-token','/council-chat'].includes(path))return json({error:'Not found'},404,headers);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
   if(request.method!=='POST')return json({error:'POST required'},405,headers);
@@ -37,7 +37,7 @@ export function createHandler({verify=verifyIdentity,roomReader=readRoom,clock=D
    const initialToken=sign(env,next);
    let saved;
    if(input.action==='renew')saved=await env.DB.prepare('UPDATE voice_sessions SET data = ?, expires_at = ? WHERE id = ? AND expires_at > ? RETURNING data').bind(JSON.stringify(next),next.expiresAt,key,now).first();
-   else saved=await env.DB.prepare("INSERT INTO voice_sessions (id, data, expires_at) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = CASE WHEN voice_sessions.expires_at > ? THEN json_set(excluded.data, '$.rtcUid', json_extract(voice_sessions.data, '$.rtcUid')) ELSE excluded.data END, expires_at = excluded.expires_at RETURNING data").bind(key,JSON.stringify(next),next.expiresAt,now).first();
+   else saved=await env.DB.prepare("INSERT INTO voice_sessions (id, data, expires_at) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = CASE WHEN voice_sessions.expires_at > ? THEN json_set(excluded.data, '$.rtcUid', json_extract(voice_sessions.data, '$.rtcUid'), '$.joinedAt', COALESCE(json_extract(voice_sessions.data, '$.joinedAt'), 0)) ELSE excluded.data END, expires_at = excluded.expires_at RETURNING data").bind(key,JSON.stringify(next),next.expiresAt,now).first();
    if(!saved)fail(403,'انتهت جلسة المجلس؛ ادخل من جديد');
    const current=JSON.parse(saved.data),token=current.rtcUid===next.rtcUid?initialToken:sign(env,current);
    if(input.action==='join')ctx.waitUntil(env.DB.prepare('DELETE FROM voice_sessions WHERE id IN (SELECT id FROM voice_sessions WHERE expires_at <= ? LIMIT 50)').bind(now).run().catch(()=>{}));
