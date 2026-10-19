@@ -14,7 +14,6 @@ const mountRoyalVoice=()=>{
  let chat=null;
  let state={connected:false,speaking:false,muted:false,outputMuted:false,users:[],rtcUid:null},roomId=null;
  function update(next){Object.assign(state,next);const stage=document.querySelector('.council-stage');if(!stage)return;
-  if(Object.hasOwn(next,'connected')){const input=stage.querySelector('.council-compose input'),send=stage.querySelector('.council-compose button');if(input)input.disabled=!state.connected;if(send)send.disabled=!state.connected||!!chat?.sending;if(state.connected&&chat){if(chat.active)chat.refresh();else chat.start();}}
   const status=document.getElementById('seatStatus');if(status&&next.message)status.textContent=next.message;
   const rise=document.getElementById('micToggle'),mute=document.getElementById('voiceMute'),down=document.getElementById('voiceDown');
   if(rise){rise.disabled=!state.connected||state.speaking;control(rise,'mic',state.speaking?(state.muted?'مكتوم':'على المايك'):'صعود');}
@@ -38,15 +37,14 @@ const mountRoyalVoice=()=>{
  }
  const voice=new RoyalVoice({sdk:loadSDK,ui:update,user:()=>window.lammaUser,
   token:async(action,session)=>{const user=window.lammaUser;if(!user)throw Error('سجّل دخولك أولاً');const idToken=await user.getIdToken();const endpoint=window.LAMMA_VOICE_ENDPOINT;if(!endpoint)throw Error('الصوت بعده يحتاج تفعيل خادم المجلس.');let r;try{r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+idToken},body:JSON.stringify({action,...session}),signal:AbortSignal.timeout(20000)});}catch{throw Error('خدمة الصوت غير متاحة بعد. تحتاج تفعيل الخادم.');}let data;try{data=await r.json();}catch{throw Error('خدمة الصوت تحتاج إعداد الخادم.');}if(!r.ok)throw Error(data.error||'تعذر الاتصال بالصوت');return data;}});
- const leaveVoice=voice.leave.bind(voice);voice.leave=()=>{chat?.stop();return leaveVoice();};
  window.lammaVoice=voice;
  window.lammaVoiceMount=id=>{roomId=id;state={connected:false,speaking:false,muted:false,outputMuted:false,users:[],rtcUid:null};const stage=document.querySelector('.council-stage');if(!stage)return;
-  chat?.stop();const form=stage.querySelector('.council-compose'),input=form.querySelector('input'),send=form.querySelector('button'),log=stage.querySelector('.council-message-log'),chatStatus=stage.querySelector('.council-chat-state');
-  chat=new CouncilChat({user:()=>window.lammaUser,session:()=>state.connected?voice.session:null,endpoint:()=>new URL('/council-chat',window.LAMMA_VOICE_ENDPOINT).href,ui:next=>{
-   if(!stage.isConnected)return;if(next.status!==undefined)chatStatus.textContent=next.status;if(next.sending!==undefined)send.disabled=next.sending||!state.connected;
+  chat?.stop();const form=stage.querySelector('.council-compose'),input=form.querySelector('input'),send=form.querySelector('button'),log=stage.querySelector('.council-message-log'),chatStatus=stage.querySelector('.council-chat-state'),sendStatus=stage.querySelector('.council-send-state');let chatReady=false;
+  chat=new CouncilChat({user:()=>window.lammaUser,roomId:id,endpoint:()=>new URL('/council-chat',window.LAMMA_VOICE_ENDPOINT).href,ui:next=>{
+   if(!stage.isConnected)return;if(next.status!==undefined)chatStatus.textContent=next.status;if(next.sendStatus!==undefined)sendStatus.textContent=next.sendStatus;if(next.ready!==undefined){chatReady=next.ready;input.disabled=!chatReady;}send.disabled=!chatReady||!!chat?.sending;
    if(next.messages){const near=log.scrollHeight-log.scrollTop-log.clientHeight<50,ids=new Set(next.messages.map(m=>m.id));for(const row of [...log.children])if(!ids.has(row.dataset.id))row.remove();for(const m of next.messages){if([...log.children].some(row=>row.dataset.id===m.id))continue;const row=document.createElement('article');row.className='council-message'+(m.userId===window.lammaUser?.uid?' own':'');row.dataset.id=m.id;const author=document.createElement('b');author.textContent=m.userId===window.lammaUser?.uid?'أنت':m.name;const body=document.createElement('p');body.dir='auto';body.textContent=m.text;row.append(author,body);log.appendChild(row);}if(near)log.scrollTop=log.scrollHeight;}
-  }});chat.start();
-  form.onsubmit=async e=>{e.preventDefault();const text=input.value;if(await chat.send(text,window.lammaUser?.displayName||'عضو '+String(window.lammaUser?.uid||'').slice(-4))){if(input.value===text)input.value='';log.scrollTop=log.scrollHeight;}};
+  }});chat.start();input.oninput=()=>{sendStatus.textContent='';};
+  form.onsubmit=async e=>{e.preventDefault();const text=input.value;try{if(await chat.send(text,window.lammaUser?.displayName||'عضو '+String(window.lammaUser?.uid||'').slice(-4))){if(input.value===text)input.value='';log.scrollTop=log.scrollHeight;}}catch{sendStatus.textContent='تعذر الإرسال؛ رسالتك باقية، حاول مرة ثانية';send.disabled=!chatReady;}};
   stage.querySelector('#councilMessages').onclick=()=>{input.focus();log.scrollTop=log.scrollHeight;};
   const controls=stage.querySelector('.voice-controls');for(const [id,icon,label,handler]of [['voiceMute','mic','كتم المايك',()=>voice.mute()],['voiceListen','speaker','كتم صوت المجلس',()=>voice.toggleSpeaker()]]){const b=document.createElement('button');b.id=id;control(b,icon,label);b.onclick=()=>Promise.resolve(handler()).catch(()=>update({message:'تعذر تنفيذ الطلب. حاول ثانية.'}));controls.appendChild(b);}
   const retry=document.createElement('button');retry.id='voiceRetry';retry.className='stage-settings';retry.textContent='↻';retry.setAttribute('aria-label','إعادة اتصال الصوت');retry.onclick=()=>voice.join(roomId);stage.querySelector('.council-stage-header').appendChild(retry);
@@ -75,12 +73,12 @@ const mountRoyalVoice=()=>{
   for(const dialog of [menu,info,toolDialog,effect])dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
   update({message:'جاري اتصال صوت المجلس...'});voice.join(id);
  };
- const originalShow=window.show;window.show=function(page){window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalShow(page);};
- const originalRender=window.renderRooms;window.renderRooms=function(){window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalRender();};
- const originalManage=window.openMyRoom;window.openMyRoom=function(){window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalManage();};
- const originalLogout=window.lammaLogout;window.lammaLogout=async()=>{await voice.leave();return originalLogout();};
- window.addEventListener('pagehide',()=>voice.leave());
- window.addEventListener('pageshow',e=>{if(e.persisted&&document.querySelector('.council-stage'))update({message:'اضغط إعادة اتصال الصوت للرجوع للمجلس.'});});
+ const originalShow=window.show;window.show=function(page){chat?.stop();window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalShow(page);};
+ const originalRender=window.renderRooms;window.renderRooms=function(){chat?.stop();window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalRender();};
+ const originalManage=window.openMyRoom;window.openMyRoom=function(){chat?.stop();window.lammaRoomEpoch=(window.lammaRoomEpoch||0)+1;voice.leave();return originalManage();};
+ const originalLogout=window.lammaLogout;window.lammaLogout=async()=>{chat?.stop();await voice.leave();return originalLogout();};
+ window.addEventListener('pagehide',()=>{chat?.stop();voice.leave();});
+ window.addEventListener('pageshow',e=>{if(e.persisted&&document.querySelector('.council-stage')){chat?.start();update({message:'اضغط إعادة اتصال الصوت للرجوع للمجلس.'});}});
 };
 if(window.lammaAppReady)mountRoyalVoice();
 else window.addEventListener("lamma-app-ready",mountRoyalVoice,{once:true});
