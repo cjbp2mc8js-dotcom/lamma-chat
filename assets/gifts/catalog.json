@@ -1,0 +1,842 @@
+[
+  {
+    "id": "royal-0",
+    "file": "royal-gifts-atlas",
+    "slot": 0,
+    "name": "باقة ورد",
+    "price": 19,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-1",
+    "file": "royal-gifts-atlas",
+    "slot": 1,
+    "name": "قلب الحب",
+    "price": 19,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-2",
+    "file": "royal-gifts-atlas",
+    "slot": 2,
+    "name": "قهوة ذهبية",
+    "price": 9,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-3",
+    "file": "royal-gifts-atlas",
+    "slot": 3,
+    "name": "تاج ملكي",
+    "price": 1999,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "royal-4",
+    "file": "royal-gifts-atlas",
+    "slot": 4,
+    "name": "ألماسة",
+    "price": 499,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-5",
+    "file": "royal-gifts-atlas",
+    "slot": 5,
+    "name": "سيارة فخمة",
+    "price": 5999,
+    "group": "كلاسيكي",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "royal-6",
+    "file": "royal-gifts-atlas",
+    "slot": 6,
+    "name": "طائرة خاصة",
+    "price": 9999,
+    "group": "كلاسيكي",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "royal-7",
+    "file": "royal-gifts-atlas",
+    "slot": 7,
+    "name": "قصر ملكي",
+    "price": 19999,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "royal-8",
+    "file": "royal-gifts-atlas",
+    "slot": 8,
+    "name": "عطر فاخر",
+    "price": 99,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-9",
+    "file": "royal-gifts-atlas",
+    "slot": 9,
+    "name": "شريحة بطيخ",
+    "price": 3,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-10",
+    "file": "royal-gifts-atlas",
+    "slot": 10,
+    "name": "دبدوب ذهبي",
+    "price": 199,
+    "group": "كلاسيكي",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "royal-11",
+    "file": "royal-gifts-atlas",
+    "slot": 11,
+    "name": "حوت المحيط",
+    "price": 2999,
+    "group": "كلاسيكي",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "romance-0",
+    "file": "romance-gifts-atlas",
+    "slot": 0,
+    "name": "وردة في قبة",
+    "price": 49,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-1",
+    "file": "romance-gifts-atlas",
+    "slot": 1,
+    "name": "خاتم الخطوبة",
+    "price": 1999,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "romance-2",
+    "file": "romance-gifts-atlas",
+    "slot": 2,
+    "name": "بجعتا الحب",
+    "price": 499,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-3",
+    "file": "romance-gifts-atlas",
+    "slot": 3,
+    "name": "عشاء رومانسي",
+    "price": 999,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "romance-4",
+    "file": "romance-gifts-atlas",
+    "slot": 4,
+    "name": "فراشة الأوركيد",
+    "price": 199,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-5",
+    "file": "romance-gifts-atlas",
+    "slot": 5,
+    "name": "رسالة حب",
+    "price": 9,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-6",
+    "file": "romance-gifts-atlas",
+    "slot": 6,
+    "name": "شوكولاتة فاخرة",
+    "price": 49,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-7",
+    "file": "romance-gifts-atlas",
+    "slot": 7,
+    "name": "خاتما الوفاء",
+    "price": 2999,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "romance-8",
+    "file": "romance-gifts-atlas",
+    "slot": 8,
+    "name": "قبلة كريستال",
+    "price": 99,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-9",
+    "file": "romance-gifts-atlas",
+    "slot": 9,
+    "name": "باقة توليب",
+    "price": 19,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "romance-10",
+    "file": "romance-gifts-atlas",
+    "slot": 10,
+    "name": "حديقة الغروب",
+    "price": 5999,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "romance-11",
+    "file": "romance-gifts-atlas",
+    "slot": 11,
+    "name": "قلادة الياقوت",
+    "price": 1999,
+    "group": "رومانسية",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "treats-0",
+    "file": "treats-gifts-atlas",
+    "slot": 0,
+    "name": "شاي بالنعناع",
+    "price": 9,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-1",
+    "file": "treats-gifts-atlas",
+    "slot": 1,
+    "name": "كعكة الاحتفال",
+    "price": 499,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-2",
+    "file": "treats-gifts-atlas",
+    "slot": 2,
+    "name": "آيس كريم",
+    "price": 19,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-3",
+    "file": "treats-gifts-atlas",
+    "slot": 3,
+    "name": "سلة فراولة",
+    "price": 49,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-4",
+    "file": "treats-gifts-atlas",
+    "slot": 4,
+    "name": "تمر فاخر",
+    "price": 19,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-5",
+    "file": "treats-gifts-atlas",
+    "slot": 5,
+    "name": "سلة نزهة",
+    "price": 199,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-6",
+    "file": "treats-gifts-atlas",
+    "slot": 6,
+    "name": "عصير السعادة",
+    "price": 9,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-7",
+    "file": "treats-gifts-atlas",
+    "slot": 7,
+    "name": "بقلاوة",
+    "price": 49,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-8",
+    "file": "treats-gifts-atlas",
+    "slot": 8,
+    "name": "لؤلؤة البحر",
+    "price": 999,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "treats-9",
+    "file": "treats-gifts-atlas",
+    "slot": 9,
+    "name": "برج الماكرون",
+    "price": 199,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-10",
+    "file": "treats-gifts-atlas",
+    "slot": 10,
+    "name": "عسل ذهبي",
+    "price": 99,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "treats-11",
+    "file": "treats-gifts-atlas",
+    "slot": 11,
+    "name": "كرز أحمر",
+    "price": 19,
+    "group": "حلويات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "luxury-0",
+    "file": "luxury-gifts-atlas",
+    "slot": 0,
+    "name": "ساعة ألماس",
+    "price": 2999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-1",
+    "file": "luxury-gifts-atlas",
+    "slot": 1,
+    "name": "العرش الملكي",
+    "price": 9999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-2",
+    "file": "luxury-gifts-atlas",
+    "slot": 2,
+    "name": "يخت فاخر",
+    "price": 19999,
+    "group": "رويال",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "luxury-3",
+    "file": "luxury-gifts-atlas",
+    "slot": 3,
+    "name": "ليموزين",
+    "price": 5999,
+    "group": "رويال",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "luxury-4",
+    "file": "luxury-gifts-atlas",
+    "slot": 4,
+    "name": "عربة ملكية",
+    "price": 9999,
+    "group": "رويال",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "luxury-5",
+    "file": "luxury-gifts-atlas",
+    "slot": 5,
+    "name": "صولجان ملكي",
+    "price": 1999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-6",
+    "file": "luxury-gifts-atlas",
+    "slot": 6,
+    "name": "جوهرة بنفسجية",
+    "price": 999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-7",
+    "file": "luxury-gifts-atlas",
+    "slot": 7,
+    "name": "كنز الملوك",
+    "price": 9999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-8",
+    "file": "luxury-gifts-atlas",
+    "slot": 8,
+    "name": "بيانو فاخر",
+    "price": 2999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-9",
+    "file": "luxury-gifts-atlas",
+    "slot": 9,
+    "name": "تنين ذهبي",
+    "price": 19999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-10",
+    "file": "luxury-gifts-atlas",
+    "slot": 10,
+    "name": "جزيرة الأحلام",
+    "price": 19999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "luxury-11",
+    "file": "luxury-gifts-atlas",
+    "slot": 11,
+    "name": "قصر الجليد",
+    "price": 19999,
+    "group": "رويال",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-0",
+    "file": "nature-gifts-atlas",
+    "slot": 0,
+    "name": "نسر ذهبي",
+    "price": 1999,
+    "group": "طبيعة",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "nature-1",
+    "file": "nature-gifts-atlas",
+    "slot": 1,
+    "name": "حصان عربي",
+    "price": 5999,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-2",
+    "file": "nature-gifts-atlas",
+    "slot": 2,
+    "name": "طاووس",
+    "price": 999,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-3",
+    "file": "nature-gifts-atlas",
+    "slot": 3,
+    "name": "فراشة زرقاء",
+    "price": 99,
+    "group": "طبيعة",
+    "motion": "flight",
+    "animated": false
+  },
+  {
+    "id": "nature-4",
+    "file": "nature-gifts-atlas",
+    "slot": 4,
+    "name": "أسد ملكي",
+    "price": 9999,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-5",
+    "file": "nature-gifts-atlas",
+    "slot": 5,
+    "name": "دلفين فضي",
+    "price": 999,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-6",
+    "file": "nature-gifts-atlas",
+    "slot": 6,
+    "name": "شجرة الساكورا",
+    "price": 499,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "nature-7",
+    "file": "nature-gifts-atlas",
+    "slot": 7,
+    "name": "واحة سحرية",
+    "price": 2999,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "nature-8",
+    "file": "nature-gifts-atlas",
+    "slot": 8,
+    "name": "صقر أبيض",
+    "price": 2999,
+    "group": "طبيعة",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "nature-9",
+    "file": "nature-gifts-atlas",
+    "slot": 9,
+    "name": "قمر وهلال",
+    "price": 499,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "nature-10",
+    "file": "nature-gifts-atlas",
+    "slot": 10,
+    "name": "ندفة كريستال",
+    "price": 49,
+    "group": "طبيعة",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "nature-11",
+    "file": "nature-gifts-atlas",
+    "slot": 11,
+    "name": "طائر العنقاء",
+    "price": 19999,
+    "group": "طبيعة",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "celebrate-0",
+    "file": "celebrate-gifts-atlas",
+    "slot": 0,
+    "name": "ألعاب نارية",
+    "price": 1999,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "celebrate-1",
+    "file": "celebrate-gifts-atlas",
+    "slot": 1,
+    "name": "كأس الأبطال",
+    "price": 999,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "celebrate-2",
+    "file": "celebrate-gifts-atlas",
+    "slot": 2,
+    "name": "مصافحة ذهبية",
+    "price": 19,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-3",
+    "file": "celebrate-gifts-atlas",
+    "slot": 3,
+    "name": "منطاد",
+    "price": 1999,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "celebrate-4",
+    "file": "celebrate-gifts-atlas",
+    "slot": 4,
+    "name": "صندوق احتفال",
+    "price": 199,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-5",
+    "file": "celebrate-gifts-atlas",
+    "slot": 5,
+    "name": "مايك ذهبي",
+    "price": 499,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-6",
+    "file": "celebrate-gifts-atlas",
+    "slot": 6,
+    "name": "سماعة ذهبية",
+    "price": 199,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-7",
+    "file": "celebrate-gifts-atlas",
+    "slot": 7,
+    "name": "كمان ذهبي",
+    "price": 999,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "celebrate-8",
+    "file": "celebrate-gifts-atlas",
+    "slot": 8,
+    "name": "غيتار",
+    "price": 499,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-9",
+    "file": "celebrate-gifts-atlas",
+    "slot": 9,
+    "name": "كرة الديسكو",
+    "price": 1999,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "celebrate-10",
+    "file": "celebrate-gifts-atlas",
+    "slot": 10,
+    "name": "ذراعا ألعاب",
+    "price": 99,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "celebrate-11",
+    "file": "celebrate-gifts-atlas",
+    "slot": 11,
+    "name": "قناع الاحتفال",
+    "price": 499,
+    "group": "احتفالات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "adventure-0",
+    "file": "adventure-gifts-atlas",
+    "slot": 0,
+    "name": "دراجة سباق",
+    "price": 2999,
+    "group": "مغامرات",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "adventure-1",
+    "file": "adventure-gifts-atlas",
+    "slot": 1,
+    "name": "مروحية",
+    "price": 5999,
+    "group": "مغامرات",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "adventure-2",
+    "file": "adventure-gifts-atlas",
+    "slot": 2,
+    "name": "طائرة مائية",
+    "price": 9999,
+    "group": "مغامرات",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "adventure-3",
+    "file": "adventure-gifts-atlas",
+    "slot": 3,
+    "name": "سفينة فضائية",
+    "price": 19999,
+    "group": "مغامرات",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "adventure-4",
+    "file": "adventure-gifts-atlas",
+    "slot": 4,
+    "name": "صاروخ",
+    "price": 9999,
+    "group": "مغامرات",
+    "motion": "flight",
+    "animated": true
+  },
+  {
+    "id": "adventure-5",
+    "file": "adventure-gifts-atlas",
+    "slot": 5,
+    "name": "قارب سباق",
+    "price": 5999,
+    "group": "مغامرات",
+    "motion": "drive",
+    "animated": true
+  },
+  {
+    "id": "adventure-6",
+    "file": "adventure-gifts-atlas",
+    "slot": 6,
+    "name": "شاليه الثلج",
+    "price": 9999,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "adventure-7",
+    "file": "adventure-gifts-atlas",
+    "slot": 7,
+    "name": "برج باريس",
+    "price": 5999,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "adventure-8",
+    "file": "adventure-gifts-atlas",
+    "slot": 8,
+    "name": "جسر لندن",
+    "price": 5999,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "adventure-9",
+    "file": "adventure-gifts-atlas",
+    "slot": 9,
+    "name": "أهرامات مصر",
+    "price": 9999,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": true
+  },
+  {
+    "id": "adventure-10",
+    "file": "adventure-gifts-atlas",
+    "slot": 10,
+    "name": "قطة مدللة",
+    "price": 199,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": false
+  },
+  {
+    "id": "adventure-11",
+    "file": "adventure-gifts-atlas",
+    "slot": 11,
+    "name": "جرو لطيف",
+    "price": 199,
+    "group": "مغامرات",
+    "motion": "float",
+    "animated": false
+  }
+]
