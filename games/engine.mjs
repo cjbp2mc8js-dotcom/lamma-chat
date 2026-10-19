@@ -7,15 +7,15 @@ const need=(ok,msg='الحركة غير مسموحة')=>{if(!ok)fail(msg);};
 function rand(s,n){let x=s.seed|0;x^=x<<13;x^=x>>>17;x^=x<<5;s.seed=x>>>0||1;return s.seed%n;}
 function shuffle(s,a){for(let i=a.length-1;i>0;i--){const j=rand(s,i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 const result=(s,w)=>{s.winner=w;s.over=true;};
-const next=s=>{s.turn=(s.turn+1)%2;};
+const next=s=>{const n=s.kind==='ludo'?s.pawns.length:2;for(let i=0;i<n;i++){s.turn=(s.turn+1)%n;if(!s.departed?.includes(s.turn))break;}};
 export const isQuiz=k=>['quiz','knowledge','flags','emoji'].includes(k);
 function quizDeck(s){let bank;if(s.kind==='flags')bank=flags.map(([flag,name])=>[flag+' علم أي دولة؟',shuffle(s,flags.map(f=>f[1]).filter(n=>n!==name)).slice(0,3).concat(name),3]);else if(s.kind==='emoji')bank=emojiQuiz.map(([pic,name])=>[pic+' ماذا تعني؟',shuffle(s,emojiQuiz.map(f=>f[1]).filter(n=>n!==name)).slice(0,3).concat(name),3]);else bank=questions.map(clone);return shuffle(s,bank).slice(0,10).map(([q,opts,right])=>{const order=shuffle(s,[0,1,2,3]);return {q,opts:order.map(i=>opts[i]),right:order.indexOf(right)};});}
-export function createGame(kind,seed=Date.now()){
+export function createGame(kind,seed=Date.now(),options={}){
  need(catalog.some(g=>g.id===kind),'اللعبة غير موجودة');const s={kind,seed:seed>>>0||1,turn:0,over:false,winner:null,ply:0,scores:[0,0],last:null};
  if(kind==='xo')s.board=Array(9).fill(null);
  if(kind==='chess'){s.pgn='';s.fen=new Chess().fen();}
  if(kind==='domino'){s.deck=shuffle(s,Array.from({length:7},(_,a)=>Array.from({length:7-a},(_,b)=>[a,a+b])).flat());s.hands=[s.deck.splice(0,7),s.deck.splice(0,7)];s.chain=[];s.passes=0;}
- if(kind==='ludo'){s.pawns=[[-1,-1,-1,-1],[-1,-1,-1,-1]];s.die=null;s.sixes=0;}
+ if(kind==='ludo'){const count=options.playerCount===4?4:2;s.rulesVersion=2;s.pawns=Array.from({length:count},()=>[-1,-1,-1,-1]);s.scores=Array(count).fill(0);s.departed=[];s.die=null;s.sixes=0;}
  if(kind==='jackaroo'){s.pawns=Array.from({length:4},()=>[-1,-1,-1,-1]);s.turn=0;s.deck=[];s.hands=[[],[],[],[]];deal(s);}
  if(isQuiz(kind)){s.questions=quizDeck(s);s.question=0;s.answers=[null,null];}
  if(kind==='memory'){s.tiles=shuffle(s,Array.from({length:8},(_,i)=>[i,i]).flat());s.matched=Array(16).fill(false);s.open=[];s.pending=false;}
@@ -27,17 +27,19 @@ export function createGame(kind,seed=Date.now()){
 }
 function chess(s){const c=new Chess();if(s.pgn)c.loadPgn(s.pgn);return c;}
 function winXO(board){for(const [a,b,c] of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]])if(board[a]!==null&&board[a]===board[b]&&board[b]===board[c])return board[a];return board.includes(null)?null:2;}
-const start=(s,p)=>s.kind==='jackaroo'?p*13:p*26;
-const finish=s=>s.kind==='jackaroo'?55:57;
-export function pawnSquare(s,p,i){const v=s.pawns[p][i];return v<0||v>=52?null:(start(s,p)+v)%52;}
+const start=(s,p)=>s.kind==='jackaroo'||s.pawns.length===4?p*13:p*26;
+export const ludoFinish=s=>s.rulesVersion===2?56:57;
+const finish=s=>s.kind==='jackaroo'?55:ludoFinish(s);
+const homeStart=s=>s.kind==='ludo'&&s.rulesVersion===2?51:52;
+export function pawnSquare(s,p,i){const v=s.pawns[p][i];return v<0||v>=homeStart(s)?null:(start(s,p)+v)%52;}
 const safeLudo=n=>[0,8,13,21,26,34,39,47].includes(n);
 function owner(s){let p=s.turn;if(s.kind==='jackaroo'&&s.pawns[p].every(v=>v===55))p=(p+2)%4;return p;}
 function movePawn(s,p,i,steps,entry=false){const v=s.pawns[p][i],f=finish(s);if(v===f)return false;let dest=entry?0:v+steps;if(entry&&v!==-1||!entry&&v===-1||dest>f)return false;if(dest<0){if(s.kind!=='jackaroo')return false;dest=(dest+52)%52;}
- const sq=dest<52?(start(s,p)+dest)%52:null;
+ const sq=dest<homeStart(s)?(start(s,p)+dest)%52:null;
  // Occupied home lanes and a protected starting marble cannot be crossed.
- for(let d=1;d<=Math.abs(steps)&&!entry;d++){const t=v+Math.sign(steps)*d;if(t>=52&&t!==f&&s.pawns[p].some((x,j)=>j!==i&&x===t))return false;if(s.kind==='jackaroo'&&t<52){const abs=(start(s,p)+t+52)%52;for(let q=0;q<4;q++)if(s.pawns[q].some((x,j)=>x===0&&start(s,q)===abs&&!(q===p&&j===i)))return false;}}
- if(s.pawns[p].some((x,j)=>j!==i&&x===dest&&dest!==f))return false;
- if(s.kind==='ludo'&&sq!==null){for(let q=0;q<2;q++)if(q!==p&&s.pawns[q].filter((x,j)=>pawnSquare(s,q,j)===sq).length>1)return false;}
+ for(let d=1;d<=Math.abs(steps)&&!entry;d++){const t=v+Math.sign(steps)*d;if(s.kind==='jackaroo'&&t>=52&&t!==f&&s.pawns[p].some((x,j)=>j!==i&&x===t))return false;if(s.kind==='ludo'&&t<homeStart(s)){const abs=(start(s,p)+t)%52;if(!safeLudo(abs)&&s.pawns.some((pawns,q)=>q!==p&&pawns.filter((_,j)=>pawnSquare(s,q,j)===abs).length>1))return false;}if(s.kind==='jackaroo'&&t<52){const abs=(start(s,p)+t+52)%52;for(let q=0;q<4;q++)if(s.pawns[q].some((x,j)=>x===0&&start(s,q)===abs&&!(q===p&&j===i)))return false;}}
+ if(s.kind==='jackaroo'&&s.pawns[p].some((x,j)=>j!==i&&x===dest&&dest!==f))return false;
+ if(s.kind==='ludo'&&sq!==null&&!safeLudo(sq)){for(let q=0;q<s.pawns.length;q++)if(q!==p&&s.pawns[q].filter((x,j)=>pawnSquare(s,q,j)===sq).length>1)return false;}
  if(s.kind==='jackaroo'&&sq!==null)for(let q=0;q<4;q++)if(q!==p&&s.pawns[q].some(x=>x===0&&start(s,q)===sq))return false;
  s.pawns[p][i]=dest;
  if(sq!==null&&(s.kind==='jackaroo'||!safeLudo(sq)))for(let q=0;q<s.pawns.length;q++)if(q!==p)for(let j=0;j<4;j++)if(pawnSquare(s,q,j)===sq)s.pawns[q][j]=-1;
@@ -72,7 +74,19 @@ export function applyMove(state,action,player=state.turn){const s=clone(state);n
  case 'xo':s.board[a.i]=s.turn;{const w=winXO(s.board);if(w!==null)result(s,w);else next(s);}break;
  case 'chess':{const c=chess(s);c.move(a);s.fen=c.fen();s.pgn=c.pgn();if(c.isCheckmate())result(s,s.turn);else if(c.isDraw())result(s,2);else next(s);break;}
  case 'domino':if(a.t==='draw'){s.hands[s.turn].push(s.deck.pop());s.passes=0;}else if(a.t==='pass'){s.passes++;if(s.passes===2){const n=s.hands.map(h=>h.flat().reduce((a,b)=>a+b,0));result(s,n[0]===n[1]?2:n[0]<n[1]?0:1);}else next(s);}else{let tile=s.hands[s.turn].splice(a.i,1)[0];if(!s.chain.length)s.chain.push(tile);else if(a.side===0){if(tile[1]!==s.chain[0][0])tile.reverse();s.chain.unshift(tile);}else{if(tile[0]!==s.chain.at(-1)[1])tile.reverse();s.chain.push(tile);}s.passes=0;if(!s.hands[s.turn].length)result(s,s.turn);else next(s);}break;
- case 'ludo':if(a.t==='roll'){s.die=rand(s,6)+1;s.sixes=s.die===6?s.sixes+1:0;if(s.sixes===3){s.die=null;s.sixes=0;next(s);}else if(!legalMoves(s).length){s.last.die=s.die;s.die=null;s.sixes=0;next(s);}else s.last.die=s.die;}else{movePawn(s,s.turn,a.i,s.die,s.pawns[s.turn][a.i]<0);if(s.pawns[s.turn].every(v=>v===57))result(s,s.turn);if(s.die!==6){next(s);s.sixes=0;}s.die=null;}break;
+ case 'ludo':if(a.t==='roll'){
+  s.die=rand(s,6)+1;s.last.die=s.die;s.sixes=s.die===6?s.sixes+1:0;
+  if(s.sixes===3){s.last.message='ثلاث ستات — ينتقل الدور';s.die=null;s.sixes=0;next(s);}
+  else if(!legalMoves(s).length){s.last.message='ماكو حركة متاحة';s.die=null;s.sixes=0;next(s);}
+ }else{
+  const p=s.turn,from=s.pawns[p][a.i],die=s.die,before=s.pawns.map(a=>a.slice());movePawn(s,p,a.i,die,from<0);
+  const captured=[];for(let q=0;q<s.pawns.length;q++)for(let j=0;j<4;j++)if(q!==p&&before[q][j]>=0&&s.pawns[q][j]===-1)captured.push({player:q,pawn:j,from:before[q][j]});
+  const arrived=s.pawns[p][a.i]===finish(s);s.last={player:p,action:a,die,from,to:s.pawns[p][a.i],captured,arrived};s.scores[p]=s.pawns[p].filter(v=>v===finish(s)).length;
+  if(s.scores[p]===4)result(s,p);
+  if(!s.over&&die!==6&&!captured.length&&!arrived)next(s);
+  if(die!==6)s.sixes=0;s.die=null;
+  s.last.message=captured.length?'أكلت حجراً! إلك رمية إضافية':arrived?'وصل حجر! إلك رمية إضافية':die===6?'ستة! إلك رمية إضافية':null;
+ }break;
  case 'jackaroo':{const p=owner(s);if(a.t==='swap'){const x=pawnSquare(s,p,a.i),y=pawnSquare(s,a.q,a.j);s.pawns[p][a.i]=(y-start(s,p)+52)%52;s.pawns[a.q][a.j]=(x-start(s,a.q)+52)%52;}else if(a.t==='card')movePawn(s,p,a.i,a.n,!!a.entry);else if(a.t==='five')movePawn(s,a.q,a.i,5);else if(a.t==='split'){movePawn(s,p,a.i,a.n);movePawn(s,p,a.j,7-a.n);}else if(a.t==='burn'&&s.hands[(s.turn+1)%4].length)s.hands[(s.turn+1)%4].pop();s.hands[s.turn].splice(a.c,1);for(let team=0;team<2;team++)if(s.pawns[team].every(v=>v===55)&&s.pawns[team+2].every(v=>v===55))result(s,team);if(!s.over){for(let i=0;i<4;i++){s.turn=(s.turn+1)%4;if(s.hands[s.turn].length)break;}if(s.hands.every(h=>!h.length)){deal(s);s.turn=0;}}break;}
  case 'memory':if(a.t==='continue'){s.open=[];s.pending=false;next(s);}else{s.open.push(a.i);if(s.open.length===2){const [x,y]=s.open;if(s.tiles[x]===s.tiles[y]){s.matched[x]=s.matched[y]=true;s.scores[s.turn]++;s.open=[];if(s.matched.every(Boolean))result(s,s.scores[0]===s.scores[1]?2:s.scores[0]>s.scores[1]?0:1);}else s.pending=true;}}break;
  case 'treasure':case 'balloons':{const v=s.cells[a.i];s.open[a.i]=true;s.scores[s.turn]+=v;s.round++;if(s.round===24)result(s,s.scores[0]===s.scores[1]?2:s.scores[0]>s.scores[1]?0:1);else next(s);break;}
@@ -105,10 +119,10 @@ export function botMove(s){if(s.over)return null;const moves=legalMoves(s);if(s.
  if(s.kind==='memory'){if(s.pending)return moves[0];return moves[(s.ply*7+3)%moves.length];}
  if(isQuiz(s.kind)){// An intentionally fallible practice opponent.
   const right=s.questions[s.question].right;return {t:'answer',i:s.ply%5===0?(right+1)%4:right};}
- if(s.kind==='ludo'){if(s.die===null)return moves[0];return moves.sort((a,b)=>s.pawns[s.turn][b.i]-s.pawns[s.turn][a.i])[0];}
+ if(s.kind==='ludo'){if(s.die===null)return moves[0];const value=a=>{const after=applyMove(s,a),last=after.last,v=after.pawns[s.turn][a.i],sq=pawnSquare(after,s.turn,a.i);let threat=0;if(sq!==null&&!safeLudo(sq))for(let q=0;q<s.pawns.length;q++)if(q!==s.turn)for(let j=0;j<4;j++){const other=pawnSquare(after,q,j);if(other!==null&&(sq-other+52)%52<=6&&(sq-other+52)%52>0)threat+=18;}return (after.over?10000:0)+(last.arrived?500:0)+last.captured.length*240+(s.pawns[s.turn][a.i]<0?65:0)+(sq!==null&&safeLudo(sq)?30:0)+v-threat;};return moves.sort((a,b)=>value(b)-value(a))[0];}
  if(s.kind==='jackaroo'){return moves.sort((a,b)=>(b.t==='card'&&b.entry?100:b.t==='split'?50:0)-(a.t==='card'&&a.entry?100:a.t==='split'?50:0))[0];}
  if(s.kind==='domino'){const t=s.hands[s.turn];return moves.sort((a,b)=>a.i===undefined?1:b.i===undefined?-1:t[b.i][0]+t[b.i][1]-t[a.i][0]-t[a.i][1])[0];}
  return moves[s.ply%moves.length];}
 export function describeMove(s,a){if(a.t==='roll')return 'ارمِ النرد';if(a.t==='pawn')return 'حرّك الحجر '+(a.i+1);if(a.t==='draw')return 'اسحب حجراً';if(a.t==='pass')return 'تمرير';if(a.t==='continue')return 'متابعة';if(a.t==='discard')return 'حرق الورقة';if(a.t==='burn')return 'حرق ورقة الخصم';if(a.t==='swap')return 'تبديل حجر '+(a.i+1)+' مع اللاعب '+(a.q+1)+' حجر '+(a.j+1);if(a.t==='split')return 'تقسيم 7: حجر '+(a.i+1)+' ← '+a.n+'، حجر '+(a.j+1)+' ← '+(7-a.n);if(a.t==='five')return 'تحريك حجر اللاعب '+(a.q+1)+' رقم '+(a.i+1)+' خمس خطوات';if(a.t==='card')return a.entry?'إخراج الحجر '+(a.i+1):'الحجر '+(a.i+1)+' ← '+a.n;return a.t;}
 export function help(kind){return {
- xo:'رتّب ثلاث علامات بصف أو عمود أو قطر. أنت X والخصم O.',chess:'الشطرنج بقواعد النقل القانونية، الكش، التبييت، الأخذ بالتجاوز والترقية. اختر القطعة ثم المربع؛ الترقية تُعرض كاختيارات.',domino:'دومينو السحب للاعبين: طابق طرف الحجر مع أحد طرفي السلسلة. إذا لا توجد حركة اسحب، وإن نفد المخزن مرّر. يفوز من يفرغ يده؛ عند الإغلاق يفوز الأقل نقاطاً.',ludo:'لودو للاعبين، أربعة أحجار لكل لاعب. تحتاج 6 للخروج، و6 تعطي دوراً آخر؛ ثلاث ستات متتابعة تنهي الدور. المربعات ذات النجمة آمنة. تحتاج رقماً دقيقاً لإنهاء المسار.',jackaroo:'جاكارو فرق: أنت وزميل آلي ضد الخصم وزميله الآلي. أربع أحجار لكل لون ومسار 52 خانة مع ممر أمان. A وK للإخراج؛ A يتحرك 1 أو11؛ 4 للخلف؛ 5 لأي حجر؛ 7 تُقسم؛ J تبديل؛ 10 خطوة أو حرق. عند إنهاء أحجارك تساعد زميلك. النسخة الخفيفة تستخدم خانة وصول مشتركة في نهاية ممر كل لون.',pool:'بليارد 8 كرات للاعبين. اختر الاتجاه والقوة ثم اضرب. بعد تعيين اللون اجمع مجموعتك ثم الكرة 8. إدخال 8 مبكراً خسارة. الخطأ يعطي الكرة البيضاء بيد الخصم. هذه نسخة رقمية خفيفة بمباراة واحدة.',carrom:'كيرم لاعبين: الأول أبيض والثاني أسود. حرّك الضارب على الخط ثم حدّد الاتجاه والقوة. اجمع قطعك التسع. الملكة تتطلب قطعة سابقة وتغطية بقطعة من لونك بنفس الضربة أو التالية؛ سقوط الضارب يبدّل الدور ويعيد قطعة إن أمكن. نسخة رقمية خفيفة بمباراة واحدة.',memory:'اكشف ورقتين. الزوج المتطابق يعطيك نقطة ودوراً آخر. بعد عدم التطابق اضغط متابعة. أكثر أزواج يفوز.',treasure:'اختارا صندوقاً بالتناوب: كنز كبير +3، صغير +1، وفخ −1. أعلى مجموع بعد 24 اختياراً يفوز.',balloons:'افقعا البالونات بالتناوب. البالون الذهبي يعطي 3 نقاط والباقي نقطة. أعلى مجموع بعد 24 اختياراً يفوز.',horses:'اضغط النرد بدورك لتحريك حصانك من 1 إلى 6 خطوات. أول حصان يصل 40 يفوز.',dare:'كل لاعب يسحب تحدياً لطيفاً بدوره. عشر جولات من دون نقاط تنافسية؛ لا تشارك معلومات خاصة.',quiz:'عشرة أسئلة. كل لاعب يجيب بدوره عن نفس السؤال، ثم تنتقل الجولة. الإجابة الصحيحة نقطة.',knowledge:'عشرة أسئلة متنوعة. جاوب بدورك واجمع أكثر نقاط.',flags:'تعرّف على أعلام الدول؛ عشرة أسئلة وإجابة واحدة لكل لاعب.',emoji:'خمن الكلمة من الإيموجي؛ عشرة أسئلة وإجابة واحدة لكل لاعب.'}[kind]||'';}
+ xo:'رتّب ثلاث علامات بصف أو عمود أو قطر. أنت X والخصم O.',chess:'الشطرنج بقواعد النقل القانونية، الكش، التبييت، الأخذ بالتجاوز والترقية. اختر القطعة ثم المربع؛ الترقية تُعرض كاختيارات.',domino:'دومينو السحب للاعبين: طابق طرف الحجر مع أحد طرفي السلسلة. إذا لا توجد حركة اسحب، وإن نفد المخزن مرّر. يفوز من يفرغ يده؛ عند الإغلاق يفوز الأقل نقاطاً.',ludo:'لودو للاعبين أو أربعة، أربعة أحجار لكل لاعب. اضغط النرد بدورك؛ تحتاج 6 لإخراج الحجر. الستة وأكل حجر الخصم ووصول حجر للنهاية تعطي رمية إضافية. ثلاث ستات متتابعة تنهي الدور. النجوم آمنة، وحجران للخصم على خانة غير آمنة يمنعان المرور. تحتاج رقماً دقيقاً للوصول. أول من يوصل أحجاره الأربعة يفوز.',jackaroo:'جاكارو فرق: أنت وزميل آلي ضد الخصم وزميله الآلي. أربع أحجار لكل لون ومسار 52 خانة مع ممر أمان. A وK للإخراج؛ A يتحرك 1 أو11؛ 4 للخلف؛ 5 لأي حجر؛ 7 تُقسم؛ J تبديل؛ 10 خطوة أو حرق. عند إنهاء أحجارك تساعد زميلك. النسخة الخفيفة تستخدم خانة وصول مشتركة في نهاية ممر كل لون.',pool:'بليارد 8 كرات للاعبين. اختر الاتجاه والقوة ثم اضرب. بعد تعيين اللون اجمع مجموعتك ثم الكرة 8. إدخال 8 مبكراً خسارة. الخطأ يعطي الكرة البيضاء بيد الخصم. هذه نسخة رقمية خفيفة بمباراة واحدة.',carrom:'كيرم لاعبين: الأول أبيض والثاني أسود. حرّك الضارب على الخط ثم حدّد الاتجاه والقوة. اجمع قطعك التسع. الملكة تتطلب قطعة سابقة وتغطية بقطعة من لونك بنفس الضربة أو التالية؛ سقوط الضارب يبدّل الدور ويعيد قطعة إن أمكن. نسخة رقمية خفيفة بمباراة واحدة.',memory:'اكشف ورقتين. الزوج المتطابق يعطيك نقطة ودوراً آخر. بعد عدم التطابق اضغط متابعة. أكثر أزواج يفوز.',treasure:'اختارا صندوقاً بالتناوب: كنز كبير +3، صغير +1، وفخ −1. أعلى مجموع بعد 24 اختياراً يفوز.',balloons:'افقعا البالونات بالتناوب. البالون الذهبي يعطي 3 نقاط والباقي نقطة. أعلى مجموع بعد 24 اختياراً يفوز.',horses:'اضغط النرد بدورك لتحريك حصانك من 1 إلى 6 خطوات. أول حصان يصل 40 يفوز.',dare:'كل لاعب يسحب تحدياً لطيفاً بدوره. عشر جولات من دون نقاط تنافسية؛ لا تشارك معلومات خاصة.',quiz:'عشرة أسئلة. كل لاعب يجيب بدوره عن نفس السؤال، ثم تنتقل الجولة. الإجابة الصحيحة نقطة.',knowledge:'عشرة أسئلة متنوعة. جاوب بدورك واجمع أكثر نقاط.',flags:'تعرّف على أعلام الدول؛ عشرة أسئلة وإجابة واحدة لكل لاعب.',emoji:'خمن الكلمة من الإيموجي؛ عشرة أسئلة وإجابة واحدة لكل لاعب.'}[kind]||'';}
