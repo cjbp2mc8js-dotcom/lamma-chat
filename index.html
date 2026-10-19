@@ -120,7 +120,7 @@ function councilChatMessageId(){
 }
 class CouncilChat {
  constructor({user,session,roomId,endpoint,ui,fetcher=fetch}){
-  Object.assign(this,{user,roomId,endpoint,ui,fetcher});this.externalSession=!!session;this.session=session||(()=>this.admitted?this.admission:null);
+  Object.assign(this,{user,roomId,endpoint,ui});this.fetcher=fetcher.bind(globalThis);this.externalSession=!!session;this.session=session||(()=>this.admitted?this.admission:null);
   this.active=false;this.epoch=0;this.controllers=new Set();this.retry=null;this.sending=false;this.revision=0;this.admitted=false;this.admission=null;
   this.visible=()=>{clearTimeout(this.timer);if(document.visibilityState==='visible'){if(!this.externalSession&&!this.admitted)this.admit();else this.refresh();}};
  }
