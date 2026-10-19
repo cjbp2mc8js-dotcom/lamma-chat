@@ -16,3 +16,5 @@ test('nonce generation failure never leaves send locked and an error is reported
 test('missing admission and malformed server acknowledgements preserve the message and report a visible error',async()=>{
  const {chat,events}=fixture(async()=>({ok:true,json:async()=>({ok:true})}));assert.equal(await chat.send('hello','n'),false);assert.equal(chat.retry.text,'hello');assert(events.some(e=>e.sendStatus?.includes('غير مكتمل')));chat.stop();assert.equal(await chat.send('hello','n'),false);assert(events.at(-1).sendStatus.includes('بعد ما اتصلت'));
 });
+
+test('browser transport receives the global receiver rather than the CouncilChat instance',async()=>{let receiver;const {chat}=fixture(function(){receiver=this;if(this!==globalThis)throw new TypeError('Illegal invocation');return Promise.resolve({ok:true,json:async()=>({messages:[]})});});assert.equal(await chat.send('hello','name'),true);assert.equal(receiver,globalThis);chat.stop();});
