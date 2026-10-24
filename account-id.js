@@ -19,7 +19,7 @@
     let response;
     for(let attempt=0;attempt<2;attempt++){
      const token=await current.getIdToken(attempt===1);
-     response=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',signal:controller.signal});
+     response=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({name:current.displayName||'عضو لمة شات'}),signal:controller.signal});
      if(response.status!==401)break;
     }
     const data=await response.json();

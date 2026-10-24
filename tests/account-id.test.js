@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const vm=require('node:vm');const fs=require('node:fs');
-function fixture(fetch){const values=[{textContent:''}],copies=[{}],retries=[{}];const context={URL,AbortController,setTimeout,clearTimeout,fetch,document:{querySelectorAll:s=>s==='[data-account-id]'?values:s==='[data-copy-account-id]'?copies:retries}};context.window=context;context.LAMMA_VOICE_ENDPOINT='https://voice.test/voice-token';vm.runInNewContext(fs.readFileSync('implementation/account-id.js','utf8'),context);return {context,values,copies,retries};}
+function fixture(fetch){const values=[{textContent:''}],copies=[{}],retries=[{}];const context={URL,AbortController,setTimeout,clearTimeout,fetch,document:{querySelectorAll:s=>s==='[data-account-id]'?values:s==='[data-copy-account-id]'?copies:retries}};context.window=context;context.LAMMA_VOICE_ENDPOINT='https://voice.test/voice-token';vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../account-id.js'),'utf8'),context);return {context,values,copies,retries};}
 const user=uid=>({uid,getIdToken:async()=>uid});
 test('public ID loads once, copies only when ready and never leaks a previous account on switching',async()=>{
  const waits=[];const f=fixture((url,options)=>new Promise(resolve=>waits.push({resolve,url,options})));

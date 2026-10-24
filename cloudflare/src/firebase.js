@@ -17,5 +17,5 @@ export async function readRoom(projectId,roomId,idToken,fetcher=fetch){
  const r=await fetcher('https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(projectId)+'/databases/(default)/documents/rooms/'+encodeURIComponent(roomId),{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(10000)});
  if(r.status===404)return null;if(r.status===401||r.status===403)fail(403,'تعذر قراءة المجلس؛ تحقق من صلاحية حسابك وقواعد Firestore');if(!r.ok)fail(503,'تعذر تحميل المجلس');
  const {fields:f={}}=await r.json();const lock=f.lockedUntil;let lockedUntil=0;if(lock)lockedUntil=lock.timestampValue?Date.parse(lock.timestampValue):Number(lock.integerValue??lock.doubleValue??NaN);
- return {ownerId:f.ownerId?.stringValue,isPublic:f.isPublic?.booleanValue===true,lockedUntil};
+ return {name:f.name?.stringValue,ownerId:f.ownerId?.stringValue,isPublic:f.isPublic?.booleanValue===true,lockedUntil};
 }
