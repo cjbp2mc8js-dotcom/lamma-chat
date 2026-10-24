@@ -1,5 +1,5 @@
 import {lobbyHTML,mountLobby} from './lobby.mjs?v=2';
-import {goldBarHTML,stakeHTML,goldNumber,paintGold,refreshGold,updateGold,openGoldTasks} from './gold.mjs?v=2';
+import {goldBarHTML,stakeHTML,goldNumber,paintGold,refreshGold,updateGold,openGoldTasks} from './gold.mjs?v=3';
 import {catalog,createGame,legalMoves,applyMove,botMove,publicState,pawnSquare,simulateShot,describeMove,help,isQuiz,ludoFinish} from './engine.mjs?v=3';
 import {dares} from './questions.mjs';
 import {ludoBoardHTML,diceSVG,ludoPosition,ludoMotion,ludoColorIndex,ludoColors,ludoPerspective,ludoSeats,ludoCupSVG} from './ludo-board.mjs?v=7';
