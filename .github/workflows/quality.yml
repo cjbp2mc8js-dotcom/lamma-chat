@@ -1,0 +1,29 @@
+name: Application quality checks
+on:
+  push:
+    branches: [main, codex/free-gold-tasks]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: cloudflare/package-lock.json
+      - name: Install server dependencies
+        run: npm ci --prefix cloudflare
+      - name: Verify client and game logic
+        run: node --test tests/*.test.*
+      - name: Verify authentication, permissions, balances and multiplayer
+        run: npm test --prefix cloudflare
+      - name: Build Worker
+        run: npm run build --prefix cloudflare
