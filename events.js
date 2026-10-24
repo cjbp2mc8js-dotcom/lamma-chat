@@ -1,5 +1,5 @@
 (()=>{
- const goldURL=new URL('./games/gold.mjs?v=3',document.currentScript.src).href;
+ const goldURL=new URL('./games/gold.mjs?v=4',document.currentScript.src).href;
  const num=n=>Number(n||0).toLocaleString('ar-IQ');
  let expanded=false,loading=false,error='',request=0;
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
