@@ -1,3 +1,4 @@
+import {goldReservation,validateStake} from './gold.js';
 import {randomUUID,randomInt} from 'node:crypto';
 import {createGame,applyMove,publicState} from '../../games/engine.mjs';
 const ready=new WeakMap(),fail=(status,message)=>{throw Object.assign(Error(message),{status});};
@@ -6,7 +7,7 @@ export async function initLudo(db){if(!ready.has(db))ready.set(db,(async()=>{
  await db.prepare('CREATE INDEX IF NOT EXISTS ludo_queue ON ludo_rooms(capacity,status,created)').run();
 })().catch(e=>{ready.delete(db);throw e;}));await ready.get(db);}
 const roster=m=>JSON.parse(m.roster),seat=(m,uid)=>roster(m).findIndex(p=>p.uid===uid);
-export function ludoPayload(m,uid){const p=seat(m,uid);if(p<0)fail(403,'المباراة ليست لحسابك');const s=JSON.parse(m.state);return {id:m.id,kind:'ludo',capacity:m.capacity,status:m.status,version:m.version,player:p,players:roster(m).map((x,i)=>({name:x.name,computer:false,left:s.departed?.includes(i)||false})),state:m.status==='waiting'?null:publicState(s,p),turnDeadline:m.status==='active'?m.updated+60000:null};}
+export function ludoPayload(m,uid){const p=seat(m,uid);if(p<0)fail(403,'المباراة ليست لحسابك');const s=JSON.parse(m.state);return {id:m.id,kind:'ludo',capacity:m.capacity,stake:m.stake||0,pot:(m.stake||0)*roster(m).length,status:m.status,version:m.version,player:p,players:roster(m).map((x,i)=>({name:x.name,computer:false,left:s.departed?.includes(i)||false})),state:m.status==='waiting'?null:publicState(s,p),turnDeadline:m.status==='active'?m.updated+60000:null};}
 export async function ludoMember(db,uid){await initLudo(db);return db.prepare('SELECT * FROM ludo_rooms WHERE id=(SELECT match_id FROM game_players WHERE uid=?)').bind(uid).first();}
 function depart(s,p,reason){s.departed??=[];if(!s.departed.includes(p))s.departed.push(p);s.pawns[p]=[-1,-1,-1,-1];const remaining=s.pawns.map((_,i)=>i).filter(i=>!s.departed.includes(i));s.last={player:p,action:{t:'leave'},message:reason};if(remaining.length<=1){s.over=true;s.winner=remaining[0]??null;s.reason=reason;return;}if(s.turn===p){do{s.turn=(s.turn+1)%s.pawns.length;}while(s.departed.includes(s.turn));s.die=null;s.sixes=0;}}
 const cleanName=n=>typeof n==='string'?(n.replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,35)||'عضو'):'عضو';
@@ -16,14 +17,15 @@ export async function ludoRequest({db,uid,input,now=Date.now(),ctx={waitUntil(){
   if(input.playerCount!==undefined&&![2,4].includes(input.playerCount))fail(400,'اختار لاعبين أو أربعة');
   const own=await ludoMember(db,uid);if(own&&own.status!=='finished'&&!JSON.parse(own.state).departed?.includes(seat(own,uid)))return ludoPayload(own,uid);if(own&&JSON.parse(own.state).departed?.includes(seat(own,uid)))await db.prepare('DELETE FROM game_players WHERE uid=? AND match_id=?').bind(uid,own.id).run();
   await db.prepare("DELETE FROM game_players WHERE uid=? AND (updated<? OR match_id IN (SELECT id FROM ludo_rooms WHERE status='finished') OR match_id IN (SELECT id FROM game_matches WHERE status='finished'))").bind(uid,now-30000).run();
-  const id='ludo-'+randomUUID(),capacity=input.playerCount===4?4:2,person=JSON.stringify({uid,name:cleanName(input.name),seen:now}),initial=JSON.stringify(createGame('ludo',randomInt(1,2147483647),{playerCount:capacity}));
+  const stake=validateStake(input),id='ludo-'+randomUUID(),capacity=input.playerCount===4?4:2,person=JSON.stringify({uid,name:cleanName(input.name),seen:now}),initial=JSON.stringify(createGame('ludo',randomInt(1,2147483647),{playerCount:capacity}));
   const reservation=await db.prepare('INSERT INTO game_players(uid,match_id,updated) VALUES(?,?,?) ON CONFLICT(uid) DO NOTHING RETURNING uid').bind(uid,id,now).first();
   if(!reservation){const current=await ludoMember(db,uid);if(current)return ludoPayload(current,uid);fail(409,'عندك مباراة ثانية مفتوحة؛ أغلقها أولاً');}
   try{await db.batch([
-   db.prepare("INSERT INTO ludo_rooms(id,capacity,status,roster,state,created,updated) VALUES(?,?,'waiting',json_array(json(?)),?,?,?)").bind(id,capacity,person,initial,now,now),
-   db.prepare("UPDATE ludo_rooms SET roster=json_insert(roster,'$[#]',json(?)),status=CASE WHEN json_array_length(roster)+1=capacity THEN 'active' ELSE 'waiting' END,updated=?,version=version+1 WHERE id=(SELECT id FROM ludo_rooms WHERE id<>? AND capacity=? AND status='waiting' AND updated>? AND json_array_length(roster)<capacity ORDER BY created,id LIMIT 1) AND status='waiting' AND json_array_length(roster)<capacity").bind(person,now,id,capacity,now-45000),
+   db.prepare("INSERT INTO ludo_rooms(id,capacity,status,roster,state,created,updated,stake) VALUES(?,?,'waiting',json_array(json(?)),?,?,?,?)").bind(id,capacity,person,initial,now,now,stake),
+   db.prepare("UPDATE ludo_rooms SET roster=json_insert(roster,'$[#]',json(?)),status=CASE WHEN json_array_length(roster)+1=capacity THEN 'active' ELSE 'waiting' END,updated=?,version=version+1 WHERE id=(SELECT id FROM ludo_rooms WHERE id<>? AND capacity=? AND stake=? AND status='waiting' AND updated>? AND json_array_length(roster)<capacity ORDER BY created,id LIMIT 1) AND status='waiting' AND json_array_length(roster)<capacity").bind(person,now,id,capacity,stake,now-45000),
    db.prepare("UPDATE game_players SET match_id=COALESCE((SELECT r.id FROM ludo_rooms r,json_each(r.roster) p WHERE json_extract(p.value,'$.uid')=? AND r.id<>? AND r.status IN ('waiting','active') AND NOT EXISTS(SELECT 1 FROM json_each(r.state,'$.departed') d WHERE d.value=p.key) ORDER BY r.updated DESC LIMIT 1),?),updated=? WHERE uid=? AND match_id=?").bind(uid,id,id,now,uid,id),
    db.prepare('DELETE FROM ludo_rooms WHERE id=? AND id<>(SELECT match_id FROM game_players WHERE uid=?)').bind(id,uid),
+   goldReservation(db,uid,stake,now),
   ]);const m=await ludoMember(db,uid);if(!m)fail(409,'أعد البحث عن مباراة');return ludoPayload(m,uid);}catch(e){await db.prepare('DELETE FROM game_players WHERE uid=? AND match_id=?').bind(uid,id).run();throw e;}
  }
  if(!['poll','move','leave'].includes(action))fail(400,'طلب غير صالح');

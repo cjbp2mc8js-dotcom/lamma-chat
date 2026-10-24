@@ -16,7 +16,7 @@ export function createHandler({verify=verifyIdentity,roomReader=readRoom,clock=D
   if(origin&&!allowed.includes(origin))return json({error:'الموقع غير مسموح'},403,{});
   const headers=origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Authorization, Content-Type','Access-Control-Max-Age':'600'}:{};
   const path=new URL(request.url).pathname;
-  if(path==='/health'&&request.method==='GET')return json({ok:true,service:'lamma-royal-voice',features:['council-chat','fresh-chat-entry','numeric-account-id','online-games','ludo-four-player']},200,headers);
+  if(path==='/health'&&request.method==='GET')return json({ok:true,service:'lamma-royal-voice',features:['council-chat','fresh-chat-entry','numeric-account-id','online-games','ludo-four-player','free-gold-tasks']},200,headers);
   if(!['/','/voice-token','/council-chat','/account-id','/games'].includes(path))return json({error:'Not found'},404,headers);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
   if(request.method!=='POST')return json({error:'POST required'},405,headers);

@@ -17,7 +17,7 @@ The eight primary games and eight council mini-games now open real game sessions
 - Horses: two-horse dice race to forty.
 - Dare: ten noncompetitive prompts, no paid rewards.
 
-Game scores never change wallet gold or diamonds. Profile level/royal membership is not modified.
+Online matches now use server-owned free virtual gold and account XP as described in docs/GOLD.md. Diamonds and royal membership remain separate. Computer practice does not award gold, XP or task progress.
 
 ## Transport and authority
 

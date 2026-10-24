@@ -1,6 +1,6 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';
 import {gameRequest} from '../src/games.js';import {createHandler} from '../src/index.js';
-function fixture(){const sql=new DatabaseSync(':memory:');const db={prepare(query){let args=[];const x={bind(...a){args=a;return x;},async first(){return sql.prepare(query).get(...args)||null;},async run(){return sql.prepare(query).run(...args);},raw(){return sql.prepare(query).run(...args);}};return x;},async batch(xs){sql.exec('BEGIN');try{const out=xs.map(x=>x.raw());sql.exec('COMMIT');return out;}catch(e){sql.exec('ROLLBACK');throw e;}}};let now=100000;return {sql,db,call:(uid,input)=>gameRequest({db,uid,input,now}),time:t=>now=t};}
+function fixture(){const sql=new DatabaseSync(':memory:');const db={prepare(query){let args=[];const x={bind(...a){args=a;return x;},async first(){return sql.prepare(query).get(...args)||null;},async all(){return {results:sql.prepare(query).all(...args)};},async run(){return sql.prepare(query).run(...args);},raw(){return sql.prepare(query).run(...args);}};return x;},async batch(xs){sql.exec('BEGIN');try{const out=xs.map(x=>x.raw());sql.exec('COMMIT');return out;}catch(e){sql.exec('ROLLBACK');throw e;}}};let now=100000;return {sql,db,call:(uid,input)=>gameRequest({db,uid,input,now}),time:t=>now=t};}
 const join=(f,u,kind='xo')=>f.call(u,{action:'join',kind,name:u});
 const move=(f,u,r,m,id='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')=>f.call(u,{action:'move',id:r.id,version:r.version,requestId:id,move:m});
 
