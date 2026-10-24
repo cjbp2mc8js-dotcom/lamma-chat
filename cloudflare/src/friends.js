@@ -23,7 +23,14 @@ async function list(db,uid){
   const count=await db.prepare(`SELECT COUNT(*) AS n FROM friendships f WHERE ${where}`).bind(...args).first();
   const rows=await db.prepare(`SELECT a.public_id AS id,p.name,f.updated FROM friendships f JOIN account_ids a ON a.user_id=CASE WHEN f.low_uid=? THEN f.high_uid ELSE f.low_uid END LEFT JOIN public_profiles p ON p.user_id=a.user_id WHERE ${where} ORDER BY f.updated DESC,a.public_id ASC LIMIT 100`).bind(uid,...args).all();
   results[type]={count:count.n,people:(rows.results||[]).map(r=>({id:String(r.id),name:r.name||'عضو لمة شات'}))};
- }return results;
+ }
+ results.recent={count:0,people:[]};
+ const history=await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('gold_entries','gold_settlements','gold_accounts')").all();
+ if(history.results?.length===3){
+  const rows=await db.prepare(`SELECT a.public_id AS id,p.name,MAX(s.created) AS playedAt,CAST(g.xp/1000 AS INTEGER)+1 AS level,f.status,f.sender_uid FROM gold_entries mine JOIN gold_settlements s ON s.match_id=mine.match_id AND s.qualified=1 JOIN gold_entries peer ON peer.match_id=mine.match_id AND peer.uid<>mine.uid JOIN account_ids a ON a.user_id=peer.uid LEFT JOIN public_profiles p ON p.user_id=peer.uid LEFT JOIN gold_accounts g ON g.uid=peer.uid LEFT JOIN friendships f ON (f.low_uid=mine.uid AND f.high_uid=peer.uid) OR (f.high_uid=mine.uid AND f.low_uid=peer.uid) WHERE mine.uid=? GROUP BY peer.uid ORDER BY playedAt DESC,a.public_id ASC LIMIT 100`).bind(uid).all();
+  results.recent={count:rows.results.length,people:rows.results.map(r=>({id:String(r.id),name:r.name||'عضو لمة شات',playedAt:r.playedAt,level:r.level,relationship:relation(r.status?{status:r.status,sender_uid:r.sender_uid}:null,uid)}))};
+ }
+ return results;
 }
 export async function friendsRequest({db,uid,input,now}){
  if(!input||typeof input!=='object'||Array.isArray(input))fail(400,'طلب غير صالح');
