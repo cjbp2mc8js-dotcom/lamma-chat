@@ -1,7 +1,7 @@
 (()=>{
- let loading;const clientURL=new URL('./client.mjs?v=9',document.currentScript.src).href;
- const goldURL=new URL('./gold.mjs?v=1',document.currentScript.src).href;
- window.openLammaTasks=()=>import(goldURL).then(m=>m.openGoldTasks());
+ let loading;const clientURL=new URL('./client.mjs?v=10',document.currentScript.src).href;
+ const goldURL=new URL('./gold.mjs?v=2',document.currentScript.src).href;
+ window.openLammaTasks=options=>import(goldURL).then(m=>m.openGoldTasks(options));
  window.loadLammaGold=()=>import(goldURL).then(m=>{window.paintLammaGold=m.paintGold;return m.refreshGold();}).catch(()=>{});
  const load=()=>loading||(loading=import(clientURL).catch(e=>{loading=null;throw e;}));
  window.renderLammaGames=()=>'<section id="gamesArea"><p role="status">جاري تجهيز الألعاب…</p></section>';
