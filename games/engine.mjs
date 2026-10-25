@@ -15,7 +15,7 @@ export function createGame(kind,seed=Date.now(),options={}){
  if(kind==='xo')s.board=Array(9).fill(null);
  if(kind==='chess'){s.pgn='';s.fen=new Chess().fen();}
  if(kind==='domino'){s.deck=shuffle(s,Array.from({length:7},(_,a)=>Array.from({length:7-a},(_,b)=>[a,a+b])).flat());s.hands=[s.deck.splice(0,7),s.deck.splice(0,7)];s.chain=[];s.passes=0;}
- if(kind==='ludo'){need(['classic','quick','master'].includes(options.variant||'classic'),'نمط لودو غير مدعوم');s.variant=options.variant||'classic';s.captures=Array(options.playerCount===4?4:2).fill(0);const count=options.playerCount===4?4:2;s.rulesVersion=2;s.pawns=Array.from({length:count},()=>[-1,-1,-1,-1]);s.scores=Array(count).fill(0);s.departed=[];s.die=null;s.sixes=0;}
+ if(kind==='ludo'){need(['classic','quick','master','arrow'].includes(options.variant||'classic'),'نمط لودو غير مدعوم');s.variant=options.variant||'classic';s.captures=Array(options.playerCount===4?4:2).fill(0);const count=options.playerCount===4?4:2;s.rulesVersion=2;s.pawns=Array.from({length:count},()=>[-1,-1,-1,-1]);s.scores=Array(count).fill(0);s.departed=[];s.die=null;s.sixes=0;}
  if(kind==='jackaroo'){s.pawns=Array.from({length:4},()=>[-1,-1,-1,-1]);s.turn=0;s.deck=[];s.hands=[[],[],[],[]];deal(s);}
  if(isQuiz(kind)){s.questions=quizDeck(s);s.question=0;s.answers=[null,null];}
  if(kind==='memory'){s.tiles=shuffle(s,Array.from({length:8},(_,i)=>[i,i]).flat());s.matched=Array(16).fill(false);s.open=[];s.pending=false;}
@@ -83,7 +83,8 @@ export function applyMove(state,action,player=state.turn){const s=clone(state);n
   const p=s.turn,from=s.pawns[p][a.i],die=s.die,before=s.pawns.map(a=>a.slice());movePawn(s,p,a.i,die,from<0);
   const captured=[];for(let q=0;q<s.pawns.length;q++)for(let j=0;j<4;j++)if(q!==p&&before[q][j]>=0&&s.pawns[q][j]===-1)captured.push({player:q,pawn:j,from:before[q][j]});
   if(captured.length){s.captures??=Array(s.pawns.length).fill(0);s.captures[p]+=captured.length;}
-  const arrived=s.pawns[p][a.i]===finish(s);s.last={player:p,action:a,die,from,to:s.pawns[p][a.i],captured,arrived};s.scores[p]=s.pawns[p].filter(v=>v===finish(s)).length;
+  let arrow=null;if(s.variant==='arrow'&&from>=0){const landed=s.pawns[p][a.i],absolute=pawnSquare(s,p,a.i);if([9,22,35,48].includes(absolute)&&landed+4<homeStart(s)){s.pawns[p][a.i]+=4;arrow={from:landed,to:s.pawns[p][a.i]};}}
+  const arrived=s.pawns[p][a.i]===finish(s);s.last={player:p,action:a,die,from,to:s.pawns[p][a.i],captured,arrived,...(arrow?{arrow}:{})};s.scores[p]=s.pawns[p].filter(v=>v===finish(s)).length;
   if(s.scores[p]>=(s.variant==='quick'?1:4))result(s,p);
   if(!s.over&&die!==6&&!captured.length&&!arrived)next(s);
   if(die!==6)s.sixes=0;s.die=null;

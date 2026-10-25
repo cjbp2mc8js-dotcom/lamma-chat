@@ -1,6 +1,6 @@
 (()=>{
  let loading,attempt=0,panel;
- const clientURL=new URL('./client.mjs?v=20',document.currentScript.src).href;
+ const clientURL=new URL('./client.mjs?v=21',document.currentScript.src).href;
  const goldURL=new URL('./gold.mjs?v=4',document.currentScript.src).href;
  const load=()=>loading||(loading=import(clientURL).catch(e=>{loading=null;throw e;}));
  function closePanel(){if(!panel)return;panel.close?.();panel.remove();panel=null;}
