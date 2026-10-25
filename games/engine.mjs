@@ -15,7 +15,7 @@ export function createGame(kind,seed=Date.now(),options={}){
  if(kind==='xo')s.board=Array(9).fill(null);
  if(kind==='chess'){s.pgn='';s.fen=new Chess().fen();}
  if(kind==='domino'){s.deck=shuffle(s,Array.from({length:7},(_,a)=>Array.from({length:7-a},(_,b)=>[a,a+b])).flat());s.hands=[s.deck.splice(0,7),s.deck.splice(0,7)];s.chain=[];s.passes=0;}
- if(kind==='ludo'){const count=options.playerCount===4?4:2;s.rulesVersion=2;s.pawns=Array.from({length:count},()=>[-1,-1,-1,-1]);s.scores=Array(count).fill(0);s.departed=[];s.die=null;s.sixes=0;}
+ if(kind==='ludo'){need(['classic','quick','master'].includes(options.variant||'classic'),'نمط لودو غير مدعوم');s.variant=options.variant||'classic';s.captures=Array(options.playerCount===4?4:2).fill(0);const count=options.playerCount===4?4:2;s.rulesVersion=2;s.pawns=Array.from({length:count},()=>[-1,-1,-1,-1]);s.scores=Array(count).fill(0);s.departed=[];s.die=null;s.sixes=0;}
  if(kind==='jackaroo'){s.pawns=Array.from({length:4},()=>[-1,-1,-1,-1]);s.turn=0;s.deck=[];s.hands=[[],[],[],[]];deal(s);}
  if(isQuiz(kind)){s.questions=quizDeck(s);s.question=0;s.answers=[null,null];}
  if(kind==='memory'){s.tiles=shuffle(s,Array.from({length:8},(_,i)=>[i,i]).flat());s.matched=Array(16).fill(false);s.open=[];s.pending=false;}
@@ -35,6 +35,7 @@ export function pawnSquare(s,p,i){const v=s.pawns[p][i];return v<0||v>=homeStart
 const safeLudo=n=>[0,8,13,21,26,34,39,47].includes(n);
 function owner(s){let p=s.turn;if(s.kind==='jackaroo'&&s.pawns[p].every(v=>v===55))p=(p+2)%4;return p;}
 function movePawn(s,p,i,steps,entry=false){const v=s.pawns[p][i],f=finish(s);if(v===f)return false;let dest=entry?0:v+steps;if(entry&&v!==-1||!entry&&v===-1||dest>f)return false;if(dest<0){if(s.kind!=='jackaroo')return false;dest=(dest+52)%52;}
+ if(s.kind==='ludo'&&['quick','master'].includes(s.variant)&&v<homeStart(s)&&dest>=homeStart(s)&&!(s.captures?.[p]>0))return false;
  const sq=dest<homeStart(s)?(start(s,p)+dest)%52:null;
  // Occupied home lanes and a protected starting marble cannot be crossed.
  for(let d=1;d<=Math.abs(steps)&&!entry;d++){const t=v+Math.sign(steps)*d;if(s.kind==='jackaroo'&&t>=52&&t!==f&&s.pawns[p].some((x,j)=>j!==i&&x===t))return false;if(s.kind==='ludo'&&t<homeStart(s)){const abs=(start(s,p)+t)%52;if(!safeLudo(abs)&&s.pawns.some((pawns,q)=>q!==p&&pawns.filter((_,j)=>pawnSquare(s,q,j)===abs).length>1))return false;}if(s.kind==='jackaroo'&&t<52){const abs=(start(s,p)+t+52)%52;for(let q=0;q<4;q++)if(s.pawns[q].some((x,j)=>x===0&&start(s,q)===abs&&!(q===p&&j===i)))return false;}}
@@ -81,8 +82,9 @@ export function applyMove(state,action,player=state.turn){const s=clone(state);n
  }else{
   const p=s.turn,from=s.pawns[p][a.i],die=s.die,before=s.pawns.map(a=>a.slice());movePawn(s,p,a.i,die,from<0);
   const captured=[];for(let q=0;q<s.pawns.length;q++)for(let j=0;j<4;j++)if(q!==p&&before[q][j]>=0&&s.pawns[q][j]===-1)captured.push({player:q,pawn:j,from:before[q][j]});
+  if(captured.length){s.captures??=Array(s.pawns.length).fill(0);s.captures[p]+=captured.length;}
   const arrived=s.pawns[p][a.i]===finish(s);s.last={player:p,action:a,die,from,to:s.pawns[p][a.i],captured,arrived};s.scores[p]=s.pawns[p].filter(v=>v===finish(s)).length;
-  if(s.scores[p]===4)result(s,p);
+  if(s.scores[p]>=(s.variant==='quick'?1:4))result(s,p);
   if(!s.over&&die!==6&&!captured.length&&!arrived)next(s);
   if(die!==6)s.sixes=0;s.die=null;
   s.last.message=captured.length?'أكلت حجراً! إلك رمية إضافية':arrived?'وصل حجر! إلك رمية إضافية':die===6?'ستة! إلك رمية إضافية':null;
