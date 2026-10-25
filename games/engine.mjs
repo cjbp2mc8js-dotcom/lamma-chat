@@ -70,13 +70,13 @@ export function legalMoves(s){if(s.over)return [];switch(s.kind){
  }}
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function accepted(m,a){return Object.keys(m).every(k=>m[k]===a[k])&&Object.keys(a).every(k=>Object.hasOwn(m,k));}
-export function applyMove(state,action,player=state.turn){const s=clone(state);need(!s.over,'انتهت المباراة');need(player===s.turn,'انتظر دورك');need(action&&typeof action==='object'&&!Array.isArray(action));if(s.kind==='pool'||s.kind==='carrom'){applyShot(s,action);s.ply++;return s;}const a=legalMoves(s).find(m=>accepted(m,action));need(a);s.last={player,action:a};s.ply++;
+export function applyMove(state,action,player=state.turn,random={}){const s=clone(state);need(!s.over,'انتهت المباراة');need(player===s.turn,'انتظر دورك');need(action&&typeof action==='object'&&!Array.isArray(action));if(s.kind==='pool'||s.kind==='carrom'){applyShot(s,action);s.ply++;return s;}const a=legalMoves(s).find(m=>accepted(m,action));need(a);s.last={player,action:a};s.ply++;
  switch(s.kind){
  case 'xo':s.board[a.i]=s.turn;{const w=winXO(s.board);if(w!==null)result(s,w);else next(s);}break;
  case 'chess':{const c=chess(s);c.move(a);s.fen=c.fen();s.pgn=c.pgn();if(c.isCheckmate())result(s,s.turn);else if(c.isDraw())result(s,2);else next(s);break;}
  case 'domino':if(a.t==='draw'){s.hands[s.turn].push(s.deck.pop());s.passes=0;}else if(a.t==='pass'){s.passes++;if(s.passes===2){const n=s.hands.map(h=>h.flat().reduce((a,b)=>a+b,0));result(s,n[0]===n[1]?2:n[0]<n[1]?0:1);}else next(s);}else{let tile=s.hands[s.turn].splice(a.i,1)[0];if(!s.chain.length)s.chain.push(tile);else if(a.side===0){if(tile[1]!==s.chain[0][0])tile.reverse();s.chain.unshift(tile);}else{if(tile[0]!==s.chain.at(-1)[1])tile.reverse();s.chain.push(tile);}s.passes=0;if(!s.hands[s.turn].length)result(s,s.turn);else next(s);}break;
  case 'ludo':if(a.t==='roll'){
-  s.die=rand(s,6)+1;s.last.die=s.die;s.sixes=s.die===6?s.sixes+1:0;
+  s.die=typeof random.roll==='function'?random.roll():rand(s,6)+1;need(Number.isInteger(s.die)&&s.die>=1&&s.die<=6,'نتيجة نرد غير صالحة');s.last.die=s.die;s.sixes=s.die===6?s.sixes+1:0;
   if(s.sixes===3){s.last.message='ثلاث ستات — ينتقل الدور';s.die=null;s.sixes=0;next(s);}
   else if(!legalMoves(s).length){s.last.message='ماكو حركة متاحة';s.die=null;s.sixes=0;next(s);}
  }else{

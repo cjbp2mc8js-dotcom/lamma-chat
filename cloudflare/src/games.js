@@ -56,7 +56,7 @@ async function coreGameRequest({db,uid,input,now=Date.now(),ctx={waitUntil(){}}}
  if(m['req'+p]===input.requestId)return payload(m,uid);
  if(m.version!==input.version)fail(409,'تغيّر الدور؛ جاري تحديث المباراة');
  if(s.turn!==p)fail(403,'انتظر دورك');
- const updated=withBots(applyMove(s,input.move,p));
+ const updated=withBots(applyMove(s,input.move,p,{roll:()=>randomInt(1,7)}));
  const row=await db.prepare(`UPDATE game_matches SET state=?,status=?,version=version+1,updated=?,seen${p}=?,req${p}=? WHERE id=? AND version=? RETURNING *`).bind(JSON.stringify(updated),updated.over?'finished':'active',now,now,input.requestId,m.id,m.version).first();
  if(!row)fail(409,'الحركة وصلت مسبقاً أو تغيّر الدور');return payload(row,uid);
 }

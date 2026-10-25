@@ -48,7 +48,7 @@ export async function ludoRequest({db,uid,input,now=Date.now(),ctx={waitUntil(){
  if(action==='poll')return ludoPayload(m,uid);
  if(m.status!=='active'||s.over)fail(409,'المباراة غير نشطة');if(s.departed.includes(p))fail(403,'خرجت من هذه المباراة');
  if(!Number.isSafeInteger(input.version)||typeof input.requestId!=='string'||!/^[-a-zA-Z0-9]{20,50}$/.test(input.requestId))fail(400,'طلب حركة غير صالح');if(m.version!==input.version)fail(409,'تغيّر الدور؛ جاري التحديث');if(s.turn!==p)fail(403,'انتظر دورك');
- s=applyMove(s,input.move,p);
+ s=applyMove(s,input.move,p,{roll:()=>randomInt(1,7)});
  const row=await db.prepare('UPDATE ludo_rooms SET state=?,status=?,version=version+1,updated=?,roster=json_set(roster,?,?,?,?) WHERE id=? AND version=? RETURNING *').bind(JSON.stringify(s),s.over?'finished':'active',now,'$['+p+'].seen',now,'$['+p+'].requestId',input.requestId,m.id,m.version).first();
  if(!row)fail(409,'تغيّرت المباراة؛ جاري التحديث');return ludoPayload(row,uid);
 }
