@@ -17,5 +17,6 @@
  function schedule(){clearTimeout(pollTimer);if(!window.lammaUser)return;pollTimer=setTimeout(async()=>{if(document.visibilityState!=='hidden')await refresh();schedule();},30000);}
  window.addEventListener('lamma-account-changed',()=>{lastMatches=null;epoch++;searchVersion++;state=null;result=null;notice='';error='';busy=false;listLoading=false;listTask=null;badge();paintLists();paintSearch();if(window.lammaUser)refresh();schedule();});
  window.addEventListener('lamma-gold-updated',()=>{const n=window.lammaGoldAccount?.matches;if(Number.isInteger(n)){const completed=lastMatches!==null&&n>lastMatches;lastMatches=n;if(completed)refresh(true);}});
+ window.addEventListener('online',()=>{if(window.lammaUser&&document.visibilityState!=='hidden')refresh(!!document.getElementById('friendLists'));});
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&window.lammaUser){refresh(!!document.getElementById('friendLists'));schedule();}});
 })();

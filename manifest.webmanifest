@@ -19,5 +19,13 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "id": "./index.html",
+  "lang": "ar",
+  "dir": "rtl",
+  "description": "لمة شات: مجالس ملكية وألعاب جماعية وأصدقاء في مكان واحد.",
+  "categories": [
+    "games",
+    "social"
   ]
 }
