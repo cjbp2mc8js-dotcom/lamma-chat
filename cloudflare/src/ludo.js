@@ -14,7 +14,7 @@ const cleanName=n=>typeof n==='string'?(n.replace(/[\u0000-\u001f\u007f]/g,'').t
 export async function ludoRequest({db,uid,input,now=Date.now(),ctx={waitUntil(){}}}){
  await initLudo(db);const action=input.action;
  if(action==='join'){
-  if(input.variant!==undefined&&!['classic','quick','master'].includes(input.variant))fail(400,'نمط لودو غير مدعوم');
+  if(input.variant!==undefined&&!['classic','quick','master','arrow'].includes(input.variant))fail(400,'نمط لودو غير مدعوم');
   const variant=input.variant||'classic';
   if(input.playerCount!==undefined&&![2,4].includes(input.playerCount))fail(400,'اختار لاعبين أو أربعة');
   const own=await ludoMember(db,uid);if(own&&own.status!=='finished'&&!JSON.parse(own.state).departed?.includes(seat(own,uid)))return ludoPayload(own,uid);if(own&&JSON.parse(own.state).departed?.includes(seat(own,uid)))await db.prepare('DELETE FROM game_players WHERE uid=? AND match_id=?').bind(uid,own.id).run();
