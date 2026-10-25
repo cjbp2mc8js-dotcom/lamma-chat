@@ -25,5 +25,5 @@ jobs:
         run: node --test tests/*.test.*
       - name: Verify authentication, permissions, balances and multiplayer
         run: npm test --prefix cloudflare
-      - name: Build Worker
-        run: npm run build --prefix cloudflare
+      - name: Verify actual Worker, D1 and WebSocket runtime
+        run: npm run test:runtime --prefix cloudflare

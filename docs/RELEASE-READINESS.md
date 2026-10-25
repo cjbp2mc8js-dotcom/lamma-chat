@@ -1,15 +1,16 @@
 # Lamma Chat — release readiness review
 
-Reviewed: 2026-10-24. This records an engineering review, not certification or a completed external security audit.
+Reviewed: 2026-10-25. This records an engineering review, not certification or a completed external security audit.
 
 ## Verified in this pass
 
-- 52 client, voice, game and identity tests passed.
-- 44 backend tests passed, covering authenticated access, identity isolation, CORS, council locks, chat admission, multiplayer move validation, request quotas and settlement idempotency.
+- 66 client, voice, game, identity and live-connection tests passed.
+- 45 backend tests passed, covering authenticated access, identity isolation, CORS, council locks, chat admission, multiplayer move validation, request quotas and settlement idempotency.
 - Account-linking DOM tests verified preserved UID, provider state, Arabic phone/code normalization, confirmation and account-switch cleanup. Providers and SMS were mocked; production configuration remains unverified.
 - Initial HTML shrank from 409,718 to approximately 92,000 bytes by moving an embedded WebP to a separate lazy-loaded resource. This measures bytes, not page loading time.
 - Added offline feedback, authentication initialization recovery after 20 seconds, current-page semantics, accessible login labels, navigation focus and reduced-motion support.
-- CI runs existing client/server tests and Worker build on main and the production Worker branch.
+- CI runs client/server tests plus the actual Miniflare Worker/D1/WebSocket integration suite on main and the production Worker branch. The suite uses mock identity credentials and does not contact real users.
+- Live Ludo reconnect checks cover missing initial snapshots, silent connections, offline/online transitions, returning to the app, late ticket responses and stopped-game cleanup.
 
 ## Before a public launch campaign
 
