@@ -1,0 +1,7 @@
+// Authenticated, receive-only WebSocket push. Moves retain the existing HTTP authority.
+export class LiveMatch{
+ constructor({id,api,onState,onChange}){Object.assign(this,{id,api,onState,onChange});this.stopped=false;this.ready=false;this.delay=1000;this.connect();}
+ async connect(){if(this.stopped)return;try{const{ticket}=await this.api({action:'live-ticket',id:this.id});if(this.stopped)return;if(!ticket)throw Error('No ticket');const url=new URL('/game-live',window.LAMMA_VOICE_ENDPOINT);url.protocol=url.protocol==='https:'?'wss:':'ws:';url.searchParams.set('id',this.id);url.searchParams.set('ticket',ticket);const s=this.socket=new WebSocket(url);this.watch=setTimeout(()=>s.close(),12000);s.onopen=()=>{clearTimeout(this.watch);if(this.stopped){s.close();return;}this.ready=true;this.delay=1000;this.onChange();this.beat=setInterval(()=>{if(s.readyState===1)s.send(JSON.stringify({type:'sync'}));},20000);};s.onmessage=e=>{if(this.stopped)return;try{const m=JSON.parse(e.data);if(m.type==='state'&&m.data?.id===this.id)this.onState(m.data);}catch{}};s.onerror=()=>s.close();s.onclose=()=>{clearTimeout(this.watch);clearInterval(this.beat);this.ready=false;this.onChange();this.retry();};}catch{this.retry();}}
+ retry(){if(this.stopped)return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.connect(),this.delay);this.delay=Math.min(30000,this.delay*2);}
+ stop(){this.stopped=true;this.ready=false;clearTimeout(this.timer);clearTimeout(this.watch);clearInterval(this.beat);if(this.socket){this.socket.onclose=null;this.socket.close();}}
+}

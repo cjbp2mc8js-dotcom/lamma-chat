@@ -9,7 +9,7 @@ Implemented:
 - Agora-powered council voice sessions with authenticated admission and temporary council locking.
 
 Current limits and roadmap:
-- Game state uses HTTP polling (normally 2.5 seconds while visible), not WebSocket push. A future persistent-room service must preserve membership, ordering, reconnect snapshots and exactly-once economic settlement; adding a socket alone would not provide those guarantees.
+- Ludo now receives authenticated WebSocket state pushes through a Durable Object per table. Writes still use the established authenticated HTTP move endpoint. Visible polling is reduced to 15 seconds when connected and returns to 2.5 seconds as a fallback. Tickets expire after 30 seconds and are single-use; socket sessions expire at the earlier of 5 minutes or the verified identity token expiry, then reconnect with a fresh ticket. A future persistent-room service must preserve membership, ordering, reconnect snapshots and exactly-once economic settlement; adding a socket alone would not provide those guarantees.
 - Matchmaking does not yet use account level or skill rating. The server currently matches seats, variant and stake.
 - In-game voice, same-device multiplayer, moderation/reporting/blocking and persistent cross-device profile fields remain separate work items.
 - Store checkout and recurring VIP purchases are not active. Merchant integration, verified callbacks, reversals and subscription lifecycle handling are prerequisites. No Yalla Pay or Iraqi carrier billing integration is claimed.
