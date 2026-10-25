@@ -1,0 +1,1 @@
+{"name":"lamma-socket-gateway","private":true,"type":"module","scripts":{"start":"node server.mjs"},"engines":{"node":">=22"},"dependencies":{"socket.io":"^4.8.1"}}
